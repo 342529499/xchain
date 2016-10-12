@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package protos;
+import "google/protobuf/timestamp.proto";
+
+enum Type {
+    UNDEFINED = 0;
+    VALIDATOR = 1;
+    NON_VALIDATOR = 2;
+}
+
+enum Action {
+    Request = 0;
+    Response = 1;
+}
+
+message Message {
+    enum Type {
+        UNDEFINED = 0;
+        Net_HANDSHAKE = 1;
+        Net_PING = 2;
+
+        Contract_Create = 3;
+        Contract_Run = 4;
+        Contract_Query = 5;
+
+        Code_State_Put = 6;
+        Code_State_Get = 7;
+
+        Ledger_Block_Create = 8;
+        Ledger_Block_Sync = 9;
+
+        Identity_Share = 10;
+    }
+
+    Action action = 1;
+    Type type = 2;
+    bytes payload = 3;
+    google.protobuf.Timestamp timestamp = 4;
+}
+
+service net {
+    rpc connect(stream Message) returns (stream Message){}
+}

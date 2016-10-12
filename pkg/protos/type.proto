@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package protos;
+import "message.proto";
+import "google/protobuf/timestamp.proto";
+
+message HandShake {
+    enum Type {
+        UNDEFINED = 0;
+        Net_HANDSHAKE_FIRST = 1;
+        Net_HANDSHAKE_SECOND = 2;
+        Net_HANDSHAKE_THIRD = 3;
+    }
+
+    Type   type = 1;
+    EndPoint endPoint = 2;
+    google.protobuf.Timestamp timestamp = 3;
+}
+
+message EndPoint {
+    string Id  = 1;
+    string Address  = 2;
+}
