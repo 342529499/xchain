@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/peer"
 	"io"
 	"log"
+	"fmt"
 )
 
 var (
@@ -67,7 +68,20 @@ func handle(stream pb.Net_ConnectServer) error {
 			log.Printf("recv ping msg %s\b.", in.String())
 
 		default:
+
+			manager := GetConnectionsManager()
+
+			for k, v := range manager.simpleM {
+				err  := v.Send(&pb.Message{Payload:[]byte(k)})
+				if err != nil {
+					fmt.Println(err)
+				}
+				fmt.Printf("send %v\n", k)
+			}
+
+
 			log.Printf("recv unsupport msg %s\b.", in.String())
+			//stream.Send(in)
 		}
 
 	}

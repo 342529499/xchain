@@ -65,8 +65,17 @@ func TestGetConnectionsManager(t *testing.T) {
 	}
 
 	for _, v := range manager.m {
-		for;;{
-			v.Send(&pb.Message{Payload:[]byte{1,2,3}})
+
+		for ;; {
+
+			v.Send(&pb.Message{Payload:[]byte{1,1,1}})
+			msg, err  := v.Recv()
+
+			if err != nil {
+				fmt.Printf("%#v\n", *msg)
+			}
+
+			fmt.Printf("---->%s\n", msg)
 		}
 
 	}

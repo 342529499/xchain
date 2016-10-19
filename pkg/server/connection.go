@@ -30,6 +30,7 @@ type connectionsManager struct {
 	locker        sync.RWMutex
 	localEndPoint *pb.EndPoint
 	m             map[pair]Connection
+	simpleM       map[string]Connection
 
 	keepaliveFailTime uint8
 	keepaliveDuration time.Duration
@@ -39,6 +40,7 @@ func newConnectionsManager() *connectionsManager {
 	manager := new(connectionsManager)
 	manager.keepaliveDuration = default_Keepalive_TimeDuration
 	manager.m = map[pair]Connection{}
+	manager.simpleM = map[string]Connection{}
 	return manager
 }
 
@@ -61,8 +63,12 @@ func GetConnectionsManager() *connectionsManager {
 
 func ServerAddConnection(pair pair, con Connection) {
 	consManager.m[pair] = con
+	consManager.simpleM[pair.bigger.Address] = con
 }
 
+func GetConnection(pair pair) Connection {
+	return consManager.m[pair]
+}
 func PrintConnectionManager() {
 	logger.Printf("%#v\n", *consManager)
 }
