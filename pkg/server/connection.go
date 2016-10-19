@@ -9,8 +9,13 @@ import (
 
 	"code.google.com/p/go.net/context"
 	"sync"
+	"time"
 )
 
+const (
+	default_Keepalive_TimeDuration = time.Second * 5
+	default_Keepalive_FailTime = 3
+)
 var (
 	logger                         = log.New(os.Stderr, "connection manager", log.LstdFlags)
 	consManager *connectionsManager = newConnectionsManager()
@@ -25,14 +30,17 @@ type connectionsManager struct {
 	locker        sync.RWMutex
 	localEndPoint *pb.EndPoint
 	m             map[pair]Connection
+
+	keepaliveFailTime uint8
+	keepaliveDuration time.Duration
 }
 
 func newConnectionsManager() *connectionsManager {
 	manager := new(connectionsManager)
+	manager.keepaliveDuration = default_Keepalive_TimeDuration
 	manager.m = map[pair]Connection{}
 	return manager
 }
-
 
 type Connection interface {
 	Send(*pb.Message) error
@@ -62,6 +70,7 @@ func PrintConnectionManager() {
 	logger.Printf("%#v\n", *consManager)
 }
 
+//客户端主动加入
 func (m *connectionsManager) Join(targetNet string) error {
 	m.locker.Lock()
 	defer m.locker.Unlock()
@@ -83,5 +92,23 @@ func (m *connectionsManager) Join(targetNet string) error {
 		return err
 	}
 
+	m.KeepaliveNewConnection(stream)
+
 	return nil
+}
+
+func (m *connectionsManager) KeepaliveNewConnection(con Connection) (err error) {
+	go func(){
+		var counter uint8 = 0
+		ping := makeKeepaliveMsg()
+		for ;counter < m.keepaliveFailTime; {
+			if err = con.Send(ping); err != nil {
+				counter ++
+			}
+		}
+
+		return
+	}()
+
+	return
 }
