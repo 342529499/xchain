@@ -58,6 +58,7 @@ func GetLocalEndPoint() *pb.EndPoint {
 }
 
 func GetConnectionsManager() *connectionsManager {
+	logger.Println("total connections num  is %d\n", len(consManager.simpleM))
 	return consManager
 }
 

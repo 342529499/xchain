@@ -18,6 +18,7 @@ var (
 type netServer struct {}
 
 func (s *netServer) Connect(stream pb.Net_ConnectServer) error {
+
 	return handle(stream)
 }
 
@@ -25,11 +26,12 @@ func handle(stream pb.Net_ConnectServer) error {
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
-			return nil
+
+		fmt.Println("read eof")
 		}
+
 		if err != nil {
 			return err
-
 		}
 
 		switch in.Type {
@@ -68,21 +70,12 @@ func handle(stream pb.Net_ConnectServer) error {
 			log.Printf("recv ping msg %s\b.", in.String())
 
 		default:
-
-			manager := GetConnectionsManager()
-
-			for k, v := range manager.simpleM {
-				err  := v.Send(&pb.Message{Payload:[]byte(k)})
-				if err != nil {
-					fmt.Println(err)
-				}
-				fmt.Printf("send %v\n", k)
-			}
-
-
-			log.Printf("recv unsupport msg %s\b.", in.String())
-			//stream.Send(in)
+			log.Printf("recv unsupport ping msg %s\b.", in.String())
+			stream.Send(in)
 		}
+
+
+
 
 	}
 }
