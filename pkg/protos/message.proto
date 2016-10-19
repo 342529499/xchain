@@ -3,12 +3,6 @@ syntax = "proto3";
 package protos;
 import "google/protobuf/timestamp.proto";
 
-enum Type {
-    UNDEFINED = 0;
-    VALIDATOR = 1;
-    NON_VALIDATOR = 2;
-}
-
 enum Action {
     Request = 0;
     Response = 1;

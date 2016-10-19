@@ -92,7 +92,7 @@ func (h *handshakeManager) handlerJoin(con Connection) (err error) {
 	}
 
 	for {
-		msg, err = con.Recv()
+		msg, err := con.Recv()
 		if err != nil {
 			return err
 		}

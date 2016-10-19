@@ -1,8 +1,12 @@
 syntax = "proto3";
 
 package protos;
-import "message.proto";
 import "google/protobuf/timestamp.proto";
+
+message EndPoint {
+    string Id  = 1;
+    string Address  = 2;
+}
 
 message HandShake {
     enum Type {
@@ -17,7 +21,3 @@ message HandShake {
     google.protobuf.Timestamp timestamp = 3;
 }
 
-message EndPoint {
-    string Id  = 1;
-    string Address  = 2;
-}

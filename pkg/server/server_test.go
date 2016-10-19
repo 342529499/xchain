@@ -35,18 +35,42 @@ func TestGetConnectionsManager(t *testing.T) {
 //	})
 //
 //
-//	manager := GetConnectionsManager()
+//		if err := NewAndStartGrpcServer(&ServerOptions{
+//			Address: "0.0.0.0:10690",
+//		}); err != nil {
+//			t.Fatalf("new and start default grpc server err %v", err)
+//		}
+//	//}()
 //
-//	err := manager.Join("192.168.174.132:10690")
-//	if err != nil {
-//		t.Error(err)
-//	}
+//	//
 //
-//	for _, v := range manager.m {
-//		v.Send(&pb.Message{Payload:[]byte{"1","2","3"}})
-//	}
+//
 //
 //}
+//
+func TestGetConnectionsManager(t *testing.T) {
+
+	SetLocalEndPoint(&pb.EndPoint{
+		Id:"jessie",
+		Address:GetLocalIP(),
+	})
+
+
+	manager := GetConnectionsManager()
+
+	err := manager.Join("192.168.0.110:10690")
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, v := range manager.m {
+		for;;{
+			v.Send(&pb.Message{Payload:[]byte{1,2,3}})
+		}
+
+	}
+
+}
 //// GetLocalIP returns the non loopback local IP of the host
 func GetLocalIP() string {
 	addrs, err := net.InterfaceAddrs()

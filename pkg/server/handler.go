@@ -48,15 +48,15 @@ func handle(stream pb.Net_ConnectServer) error {
 				return err
 			}
 
-			ep := &pb.EndPoint{}
-			if err = proto.Unmarshal(in.Payload, ep); err != nil {
+			hs := &pb.HandShake{}
+			if err = proto.Unmarshal(in.Payload, hs); err != nil {
 				log.Printf("handle net hand shake parse paylaod err %v\n", err)
 				continue
 			}
 
 			key := pair{
 				littler: *GetLocalEndPoint(),
-				bigger: *ep,
+				bigger:  hs.EndPoint,
 			}
 
 			ServerAddConnection(key, stream)
