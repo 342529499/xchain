@@ -5,27 +5,28 @@ import (
 	"testing"
 
 	pb "github.com/1851616111/xchain/pkg/protos"
+	"fmt"
 )
-
-func TestGetConnectionsManager(t *testing.T) {
-	SetLocalEndPoint(&pb.EndPoint{
-		Id:"michael",
-		Address:GetLocalIP(),
-	})
-
-
-		if err := NewAndStartGrpcServer(&ServerOptions{
-			Address: "0.0.0.0:10690",
-		}); err != nil {
-			t.Fatalf("new and start default grpc server err %v", err)
-		}
-	//}()
-
-	//
-
-
-
-}
+//
+//func TestGetConnectionsManager(t *testing.T) {
+//	SetLocalEndPoint(&pb.EndPoint{
+//		Id:"michael",
+//		Address:GetLocalIP(),
+//	})
+//
+//
+//		if err := NewAndStartGrpcServer(&ServerOptions{
+//			Address: "0.0.0.0:10690",
+//		}); err != nil {
+//			t.Fatalf("new and start default grpc server err %v", err)
+//		}
+//	//}()
+//
+//	//
+//
+//
+//
+//}
 //
 //func TestunLimitSendMsg(t *testing.T) {
 //

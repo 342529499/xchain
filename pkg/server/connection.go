@@ -60,9 +60,6 @@ func GetConnectionsManager() *connectionsManager {
 }
 
 func ServerAddConnection(pair pair, con Connection) {
-	consManager.locker.Lock()
-	defer consManager.locker.Unlock()
-
 	consManager.m[pair] = con
 }
 

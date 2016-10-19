@@ -56,7 +56,7 @@ func handle(stream pb.Net_ConnectServer) error {
 
 			key := pair{
 				littler: *GetLocalEndPoint(),
-				bigger:  hs.EndPoint,
+				bigger:  *hs.EndPoint,
 			}
 
 			ServerAddConnection(key, stream)
@@ -68,7 +68,6 @@ func handle(stream pb.Net_ConnectServer) error {
 
 		default:
 			log.Printf("recv unsupport msg %s\b.", in.String())
-			return UnSupportMsgErr
 		}
 
 	}
