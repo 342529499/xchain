@@ -16,7 +16,6 @@ var (
 type netServer struct {}
 
 func (s *netServer) Connect(stream pb.Net_ConnectServer) error {
-
 	return handle(stream)
 }
 
@@ -44,6 +43,9 @@ func handle(stream pb.Net_ConnectServer) error {
 			if err = stream.Send(makeSecondHandShakeReqMsg(GetLocalEndPoint())); err != nil {
 				return err
 			}
+
+			PrintConnectionManager()
+
 
 		default:
 			log.Printf("recv unsupport msg %s\b.", in.String())

@@ -13,12 +13,7 @@ import (
 
 var (
 	logger                         = log.New(os.Stderr, "connection manager", log.LstdFlags)
-	consManager connectionsManager = connectionsManager{
-		locker: sync.RWMutex{},
-		m:      map[pair]Connection{},
-	}
-
-	contextLocker sync.RWMutex
+	consManager *connectionsManager = newConnectionsManager()
 )
 
 type pair struct {
@@ -32,26 +27,39 @@ type connectionsManager struct {
 	m             map[pair]Connection
 }
 
+func newConnectionsManager() *connectionsManager {
+	manager := new(connectionsManager)
+	manager.m = map[pair]Connection{}
+	return manager
+}
+
+
 type Connection interface {
 	Send(*pb.Message) error
 	Recv() (*pb.Message, error)
 }
 
 func SetLocalEndPoint(localEndPoint *pb.EndPoint) {
-	contextLocker.Lock()
-	defer contextLocker.Unlock()
 	consManager.localEndPoint = localEndPoint
 }
 
 func GetLocalEndPoint() *pb.EndPoint {
-	contextLocker.RLocker()
-	defer contextLocker.RUnlock()
-
 	return consManager.localEndPoint
 }
 
 func GetConnectionsManager() *connectionsManager {
-	return &consManager
+	return consManager
+}
+
+func ServerAddConnection(pair pair, con Connection) {
+	consManager.locker.Lock()
+	defer consManager.locker.Unlock()
+
+	consManager.m[pair] = con
+}
+
+func PrintConnectionManager() {
+	logger.Printf("%#v\n", *consManager)
 }
 
 func (m *connectionsManager) Join(targetNet string) error {

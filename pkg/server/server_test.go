@@ -12,19 +12,24 @@ func TestGetConnectionsManager(t *testing.T) {
 		Address:GetLocalIP(),
 	})
 
-	go func() {
+	//go func() {
 		if err := NewAndStartGrpcServer(&ServerOptions{
 			Address: "0.0.0.0:10690",
 		}); err != nil {
 			t.Fatalf("new and start default grpc server err %v", err)
 		}
-	}()
+	//}()
 
+	//
 	manager := GetConnectionsManager()
 
-	err := manager.Join("0.0.0.0:10690")
+	err := manager.Join("192.168.174.132:10690")
 	if err != nil {
 		t.Error(err)
+	}
+
+	for k, v := range manager.m {
+		v.Send(k)
 	}
 }
 

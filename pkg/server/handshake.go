@@ -101,7 +101,18 @@ func (h *handshakeManager) handlerJoin(con Connection) (err error) {
 			continue
 		}
 
-		err = handleSecHandShakeFunc(msg, validateSecondHandShakeMsg)
+		successHandleFn := func(secondHandShake *pb.HandShake) error {
+			if len(strings.TrimSpace(secondHandShake.EndPoint.Id)) == 0 {
+				return errors.New("second handshake failded")
+			}
+
+			h.to.Id = secondHandShake.EndPoint.Id
+
+			ServerAddConnection(pair{h.from, h.to}, con)
+			return nil
+		}
+
+		err = handleSecHandShakeFunc(msg, successHandleFn)
 		if err != nil {
 			return err
 		} else {
@@ -110,14 +121,6 @@ func (h *handshakeManager) handlerJoin(con Connection) (err error) {
 	}
 
 	h.success = true
-	return nil
-}
-
-func validateSecondHandShakeMsg(msg *pb.HandShake) error {
-	if len(strings.TrimSpace(msg.EndPoint.Id)) == 0 {
-		return errors.New("second handshake failded")
-	}
-
 	return nil
 }
 
