@@ -1,0 +1,3 @@
+***这个组件设计的目的是提供grpc连接的管理工具
+
+目前的设计并没有充分解耦。因为connection的Message仍然引用message.proto中自定义的消息格式

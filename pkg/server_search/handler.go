@@ -2,12 +2,12 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc/peer"
 	"io"
 	"log"
-	"fmt"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 	UnMatchHandShakeAddressErr error = errors.New("unmatch hankshake address")
 )
 
-type netServer struct {}
+type netServer struct{}
 
 func (s *netServer) Connect(stream pb.Net_ConnectServer) error {
 
@@ -27,7 +27,7 @@ func handle(stream pb.Net_ConnectServer) error {
 		in, err := stream.Recv()
 		if err == io.EOF {
 
-		fmt.Println("read eof")
+			fmt.Println("read eof")
 		}
 
 		if err != nil {
@@ -73,9 +73,6 @@ func handle(stream pb.Net_ConnectServer) error {
 			log.Printf("recv unsupport ping msg %s\b.", in.String())
 			stream.Send(in)
 		}
-
-
-
 
 	}
 }

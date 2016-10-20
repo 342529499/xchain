@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/golang/protobuf/ptypes"
 	pb "github.com/1851616111/xchain/pkg/protos"
+	"github.com/golang/protobuf/ptypes"
 	"time"
 )
 

@@ -14,10 +14,11 @@ import (
 
 const (
 	default_Keepalive_TimeDuration = time.Second * 5
-	default_Keepalive_FailTime = 3
+	default_Keepalive_FailTime     = 3
 )
+
 var (
-	logger                         = log.New(os.Stderr, "connection manager", log.LstdFlags)
+	logger                          = log.New(os.Stderr, "connection manager", log.LstdFlags)
 	consManager *connectionsManager = newConnectionsManager()
 )
 
@@ -102,12 +103,12 @@ func (m *connectionsManager) Join(targetNet string) error {
 }
 
 func (m *connectionsManager) KeepaliveNewConnection(con Connection) (err error) {
-	go func(){
+	go func() {
 		var counter uint8 = 0
 		ping := makeKeepaliveMsg()
-		for ;counter < m.keepaliveFailTime; {
+		for counter < m.keepaliveFailTime {
 			if err = con.Send(ping); err != nil {
-				counter ++
+				counter++
 			}
 		}
 

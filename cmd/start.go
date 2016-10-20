@@ -7,7 +7,7 @@ import (
 	"github.com/1851616111/xchain/pkg/util/file"
 	"github.com/spf13/cobra"
 
-	"github.com/1851616111/xchain/pkg/server"
+	"github.com/1851616111/xchain/pkg/server_search"
 	"net"
 
 	"google.golang.org/grpc"
@@ -62,14 +62,14 @@ func (options *StartOptions) Run(c *cobra.Command, args []string) {
 		return
 	}
 
-	serverOptions := &server.ServerOptions{
+	serverOptions := &server_search.ServerOptions{
 		Address:      options.peer.listenAddress,
 		TlsEnabled:   options.peer.tlsEnabled,
 		CertFilePath: options.peer.tlsCertPath,
 		KeyFilePath:  options.peer.tlsKeyPath,
 	}
 
-	server.NewAndStartGrpcServer(serverOptions)
+	server_search.NewAndStartGrpcServer(serverOptions)
 }
 
 func (options *StartOptions) validate(args []string) error {
