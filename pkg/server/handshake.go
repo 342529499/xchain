@@ -3,6 +3,7 @@ package server
 import (
 	"errors"
 	pb "github.com/1851616111/xchain/pkg/protos"
+	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"strings"
@@ -12,22 +13,22 @@ import (
 
 type handshakeManager struct {
 	sync.RWMutex
-	from    pb.EndPoint
-	to      pb.EndPoint
+	local   pb.EndPoint
+	aside   pb.EndPoint
 	success bool
 }
 
 func newHandshakeAgreement(localEndPoint pb.EndPoint, targetAddress string) *handshakeManager {
 	return &handshakeManager{
-		from:    localEndPoint,
-		to:      pb.EndPoint{Address: targetAddress},
+		local:   localEndPoint,
+		aside:   pb.EndPoint{Address: targetAddress},
 		success: false,
 	}
 }
 
 //first handshake:
 //cli(192.168.1.1)---->server(192.168.1.2):
-//server你好，我是ID=michael，Address=192.168.1.1的客户端。请先确认，请问，server你的名字是多少？
+//server你好，我是ID=michael，Address=192.168.1.1的validate／nonvalidate。请先确认，请问，server你的名字是多少？
 func makeFirstHandShakeReqMsg(localEPInfo *pb.EndPoint) *pb.Message {
 	handshakeInfo := &pb.HandShake{
 		Type:     pb.HandShake_Net_HANDSHAKE_FIRST,
@@ -39,6 +40,23 @@ func makeFirstHandShakeReqMsg(localEPInfo *pb.EndPoint) *pb.Message {
 
 	return &pb.Message{
 		Action:    pb.Action_Request,
+		Type:      pb.Message_Net_HANDSHAKE,
+		Payload:   payload,
+		Timestamp: timeStamp,
+	}
+}
+
+func makeFirstHandShakeRspMsg(err error) *pb.Message {
+	handshakeInfo := &pb.HandShakeResponse{
+		Type: pb.HandShakeResponse_Net_HANDSHAKE_FIRST_RESPONSE,
+		Msg:  []byte(err.Error()),
+	}
+
+	payload, _ := proto.Marshal(handshakeInfo)
+	timeStamp, _ := ptypes.TimestampProto(time.Now())
+
+	return &pb.Message{
+		Action:    pb.Action_Response,
 		Type:      pb.Message_Net_HANDSHAKE,
 		Payload:   payload,
 		Timestamp: timeStamp,
@@ -82,11 +100,11 @@ func makeSecondHandShakeReqMsg(localEPInfo *pb.EndPoint) *pb.Message {
 //	}
 //}
 
-func (h *handshakeManager) handlerJoin(con Connection) (err error) {
+func (h *handshakeManager) handlerJoin(con cm.Connection) (err error) {
 	h.Lock()
 	defer h.Unlock()
 
-	msg := makeFirstHandShakeReqMsg(&h.from)
+	msg := makeFirstHandShakeReqMsg(&h.local)
 	if err = con.Send(msg); err != nil {
 		return err
 	}
@@ -103,12 +121,16 @@ func (h *handshakeManager) handlerJoin(con Connection) (err error) {
 
 		successHandleFn := func(secondHandShake *pb.HandShake) error {
 			if len(strings.TrimSpace(secondHandShake.EndPoint.Id)) == 0 {
-				return errors.New("second handshake failded")
+				return errors.New("second handshake failded, endpoint id nil.")
 			}
 
-			h.to.Id = secondHandShake.EndPoint.Id
+			if secondHandShake.EndPoint.Type != pb.EndPoint_VALIDATOR ||  secondHandShake.EndPoint.Type != pb.EndPoint_NON_VALIDATOR {
+				return errors.New("second handshake failded, endpoint type nil")
+			}
 
-			ServerAddConnection(pair{h.from, h.to}, con)
+			h.aside.Id = secondHandShake.EndPoint.Id
+			h.aside.Type = secondHandShake.EndPoint.Type
+
 			return nil
 		}
 
@@ -147,4 +169,31 @@ func handleSecHandShakeFunc(msg *pb.Message, callback func(hs *pb.HandShake) err
 	}
 
 	return errors.New("unknown net hankshake type")
+}
+
+func validateFirstHandShake(msg *pb.Message) func(address string) (*pb.EndPoint, error) {
+
+	handshake := &pb.HandShake{}
+	err := proto.Unmarshal(msg.Payload, handshake)
+
+	return func(address string) (*pb.EndPoint, error) {
+		if err != nil {
+			return nil, err
+		}
+
+		if handshake.EndPoint.Address != address {
+			return nil, UnMatchHandShakeAddressErr
+		}
+
+		if handshake.EndPoint.Type != pb.EndPoint_NON_VALIDATOR || handshake.EndPoint.Type != pb.EndPoint_VALIDATOR {
+			return nil, InvalidatedHandShakeTypeErr
+		}
+
+		if handshake.EndPoint.Id == "" {
+			return nil, InvalidatedHandShakeIDErr
+		}
+
+		return handshake.EndPoint, nil
+	}
+
 }

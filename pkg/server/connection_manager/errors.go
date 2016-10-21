@@ -5,6 +5,7 @@ import (
 )
 
 var (
-	ErrConnectionNotExist    = errors.New("connection not exists")
-	ErrConnectionsOutOfLimit = errors.New("connection out of limit")
+	ErrConnectionNotExist     = errors.New("connection not exists")
+	ErrConnectionAlreadyExist = errors.New("connection already exists")
+	ErrConnectionsOutOfLimit  = errors.New("connection out of limit")
 )

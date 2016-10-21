@@ -13,6 +13,7 @@ It has these top-level messages:
 	Message
 	EndPoint
 	HandShake
+	HandShakeResponse
 */
 package protos
 

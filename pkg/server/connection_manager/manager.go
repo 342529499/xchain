@@ -2,13 +2,11 @@ package connection_manager
 
 import (
 	errlist "github.com/1851616111/xchain/pkg/util/errors"
-	"sync"
 )
 
-const Default_Suggested_MaxCons = 400
+const Default_Suggested_MaxCons = 100
 
 type conManager struct {
-	locker   sync.RWMutex
 	conns    map[string]Connection
 	maxConns int
 	kaConfig KeepaliveConfig
@@ -16,7 +14,6 @@ type conManager struct {
 
 func NewConnectionsManager(maxCon int) Manager {
 	return &conManager{
-		locker:   sync.RWMutex{},
 		conns:    map[string]Connection{},
 		maxConns: maxCon,
 		kaConfig: DefaultKeepaliveConfig,
@@ -24,16 +21,12 @@ func NewConnectionsManager(maxCon int) Manager {
 }
 
 func (p *conManager) Exist(key string) bool {
-	p.locker.RLock()
-	defer p.locker.RUnlock()
 
 	_, exist := p.conns[key]
 	return exist
 }
 
 func (p *conManager) Add(key string, con Connection) error {
-	p.locker.Lock()
-	defer p.locker.Unlock()
 
 	if len(p.conns) >= p.maxConns {
 		return ErrConnectionsOutOfLimit
@@ -41,7 +34,7 @@ func (p *conManager) Add(key string, con Connection) error {
 
 	_, exist := p.conns[key]
 	if exist {
-		return ErrConnectionNotExist
+		return ErrConnectionAlreadyExist
 	}
 
 	p.conns[key] = con
@@ -49,15 +42,11 @@ func (p *conManager) Add(key string, con Connection) error {
 }
 
 func (p *conManager) Del(key string) {
-	p.locker.Lock()
-	defer p.locker.Unlock()
 
 	delete(p.conns, key)
 }
 
 func (p *conManager) Get(key string) (Connection, error) {
-	p.locker.RLock()
-	defer p.locker.RUnlock()
 
 	con, exist := p.conns[key]
 	if !exist {
@@ -68,8 +57,6 @@ func (p *conManager) Get(key string) (Connection, error) {
 }
 
 func (p *conManager) BroadcastFunc(waitAll bool, callback func(key string, con Connection) error) error {
-	p.locker.Lock()
-	defer p.locker.Unlock()
 
 	var l errlist.ErrorList = errlist.NewErrorList()
 	for key, con := range p.conns {

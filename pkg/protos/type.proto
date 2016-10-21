@@ -6,6 +6,14 @@ import "google/protobuf/timestamp.proto";
 message EndPoint {
     string Id  = 1;
     string Address  = 2;
+
+    enum Type {
+        UNDEFINED = 0;
+        VALIDATOR = 1;
+        NON_VALIDATOR = 2;
+    }
+
+    Type type = 3;
 }
 
 message HandShake {
@@ -21,3 +29,16 @@ message HandShake {
     google.protobuf.Timestamp timestamp = 3;
 }
 
+message HandShakeResponse {
+    enum Type {
+        UNDEFINED = 0;
+        Net_HANDSHAKE_FIRST_RESPONSE = 1;
+        Net_HANDSHAKE_SECOND_RESPONSE  = 2;
+        Net_HANDSHAKE_THIRD_RESPONSE  = 3;
+    }
+
+    Type type = 1;
+    bytes msg = 2;
+    google.protobuf.Timestamp timestamp = 3;
+
+}
