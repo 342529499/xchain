@@ -49,28 +49,9 @@ func NewAndStartGrpcServer(option *ServerOptions) error {
 	go nodeServer.node.RunController()
 
 	go func() {
-		//无加入网络的目标，只能等待连接
-		if len(option.EntryPointAddress) == 0 {
-			return
+		if err := nodeServer.node.ConnectEntryPoint(option.EntryPointAddress); err != nil {
+			os.Exit(0)
 		}
-
-		//设计上应该为1，防止阻塞
-		errCh, doneCh := make(chan error, 1), make(chan struct{}, 1)
-		nodeServer.node.lounchConnectCh <- &lounchConnectionMetadata{
-			targetAddress: option.EntryPointAddress,
-			errCh: errCh,
-			doneCh:doneCh,
-		}
-
-		select {
-		case err := <-errCh:
-			fmt.Printf("join entryPointAddress:%s err:%v\n", option.EntryPointAddress, err.Error())
-			os.Exit(1)
-
-		case <- doneCh:
-			fmt.Printf("join entryPointAddress:%s success\n", option.EntryPointAddress)
-		}
-
 	}()
 
 	if err := server.Serve(lis); err != nil {

@@ -12,11 +12,11 @@ func (n *Node) RunController() {
 		case rc := <-n.recvConnectCh:
 			log.Printf("node controller: recv connection %v\n", rc)
 
-			 if err := n.Accept(rc.client, rc.con); err != nil {
-				 rc.errCh <- err
-			 }else {
-				rc.doneCh <- struct {}{}
-			 }
+			if err := n.Accept(rc.client, rc.con); err != nil {
+				rc.errCh <- err
+			} else {
+				rc.doneCh <- struct{}{}
+			}
 
 		case task := <-n.lounchConnectCh:
 
@@ -31,7 +31,7 @@ func (n *Node) RunController() {
 				log.Printf("node controller: lounch connection err:%v\n", err)
 				task.errCh <- err
 			}
-			task.doneCh <- struct {}{}
+			task.doneCh <- struct{}{}
 			continue
 
 			log.Printf("node controller: success launch connection for %s\n", task.targetAddress)

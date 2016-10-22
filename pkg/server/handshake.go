@@ -124,7 +124,7 @@ func (h *handshakeManager) handlerJoin(con cm.Connection) (err error) {
 				return errors.New("second handshake failded, endpoint id nil.")
 			}
 
-			if secondHandShake.EndPoint.Type != pb.EndPoint_VALIDATOR ||  secondHandShake.EndPoint.Type != pb.EndPoint_NON_VALIDATOR {
+			if secondHandShake.EndPoint.Type != pb.EndPoint_VALIDATOR || secondHandShake.EndPoint.Type != pb.EndPoint_NON_VALIDATOR {
 				return errors.New("second handshake failded, endpoint type nil")
 			}
 
@@ -171,29 +171,23 @@ func handleSecHandShakeFunc(msg *pb.Message, callback func(hs *pb.HandShake) err
 	return errors.New("unknown net hankshake type")
 }
 
-func validateFirstHandShake(msg *pb.Message) func(address string) (*pb.EndPoint, error) {
-
-	handshake := &pb.HandShake{}
-	err := proto.Unmarshal(msg.Payload, handshake)
-
-	return func(address string) (*pb.EndPoint, error) {
-		if err != nil {
-			return nil, err
-		}
-
-		if handshake.EndPoint.Address != address {
-			return nil, UnMatchHandShakeAddressErr
-		}
-
-		if handshake.EndPoint.Type != pb.EndPoint_NON_VALIDATOR || handshake.EndPoint.Type != pb.EndPoint_VALIDATOR {
-			return nil, InvalidatedHandShakeTypeErr
-		}
-
-		if handshake.EndPoint.Id == "" {
-			return nil, InvalidatedHandShakeIDErr
-		}
-
-		return handshake.EndPoint, nil
+func validateFirstHandShake(msg *pb.HandShake, validateFn func(msg *pb.HandShake) error) (err error) {
+	if err = validateFn(msg); err != nil {
+		return
 	}
 
+	if msg.EndPoint.Type != pb.EndPoint_NON_VALIDATOR || msg.EndPoint.Type != pb.EndPoint_VALIDATOR {
+		return InvalidatedHandShakeTypeErr
+	}
+
+	if msg.EndPoint.Id == "" {
+		return InvalidatedHandShakeIDErr
+	}
+
+	return nil
+
+}
+
+func validateSource(msg *pb.HandShake, source string) bool {
+	return msg.EndPoint.Address == source
 }
