@@ -9,6 +9,7 @@ import (
 	"github.com/1851616111/xchain/pkg/server"
 	"github.com/1851616111/xchain/pkg/util"
 	"github.com/1851616111/xchain/pkg/util/file"
+
 )
 
 type StartOptions struct {
@@ -64,6 +65,7 @@ func (options *StartOptions) Run(c *cobra.Command, args []string) {
 		log.Printf("xchart start validate args err, %v.\n", err)
 		return
 	}
+	options.Complete()
 
 	serverOptions := &server.ServerOptions{
 		ID:              options.peer.id,
@@ -81,6 +83,14 @@ func (options *StartOptions) Run(c *cobra.Command, args []string) {
 	server.NewAndStartGrpcServer(serverOptions)
 }
 
+func (options *StartOptions) Complete () error {
+	if options.peer.netAddress != "" {
+		util.SetLocalIP(options.peer.netAddress)
+	}
+
+	return nil
+}
+
 func (options *StartOptions) Validate(args []string) error {
 	var err error
 
@@ -96,3 +106,5 @@ func (options *StartOptions) Validate(args []string) error {
 
 	return nil
 }
+
+

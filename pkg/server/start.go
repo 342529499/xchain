@@ -49,6 +49,10 @@ func NewAndStartGrpcServer(option *ServerOptions) error {
 	go nodeServer.node.RunController()
 
 	go func() {
+		if len(option.EntryPointAddress) == 0 {
+			return
+		}
+
 		if err := nodeServer.node.ConnectEntryPoint(option.EntryPointAddress); err != nil {
 			os.Exit(0)
 		}
