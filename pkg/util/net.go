@@ -26,6 +26,10 @@ func SetLocalIP(ip string) error {
 }
 
 func GetLocalIP() string {
+	if Local_Address_IP != "" {
+		return Local_Address_IP
+	}
+
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return ""
