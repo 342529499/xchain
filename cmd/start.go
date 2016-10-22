@@ -86,6 +86,7 @@ func (options *StartOptions) Run(c *cobra.Command, args []string) {
 func (options *StartOptions) Complete () error {
 	if options.peer.netAddress != "" {
 		util.SetLocalIP(options.peer.netAddress)
+		options.peer.id = server.GenerateId()
 	}
 
 	return nil
