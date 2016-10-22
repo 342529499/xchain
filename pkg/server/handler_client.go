@@ -44,7 +44,7 @@ func (n *Node) startAndJoin(address string, successFn func(target pb.EndPoint, c
 
 //node 启动时连接的的网络entrypoint address
 //当node 的server aside 连接断开后，可能用到此连接方法。
-func (n *Node)ConnectEntryPoint(entryPoint string) error {
+func (n *Node) ConnectEntryPoint(entryPoint string) error {
 
 	//无加入网络的目标，只能等待连接
 	if len(entryPoint) == 0 {

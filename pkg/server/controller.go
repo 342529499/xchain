@@ -4,13 +4,16 @@ import (
 	pb "github.com/1851616111/xchain/pkg/protos"
 	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
 	"log"
+	"os"
 )
+
+var logger = log.New(os.Stderr, "controller:", log.LstdFlags)
 
 func (n *Node) RunController() {
 	for {
 		select {
 		case rc := <-n.recvConnectCh:
-			log.Printf("node controller: recv connection %v\n", rc)
+			logger.Printf("node controller: recv connection %v\n", rc)
 
 			if err := n.Accept(rc.client, rc.con); err != nil {
 				rc.errCh <- err
@@ -34,7 +37,7 @@ func (n *Node) RunController() {
 			task.doneCh <- struct{}{}
 			continue
 
-			log.Printf("node controller: success launch connection for %s\n", task.targetAddress)
+			logger.Printf("node controller: success launch connection for %s\n", task.targetAddress)
 		}
 	}
 }
