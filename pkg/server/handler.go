@@ -26,7 +26,7 @@ func (n *Node) handshakeHandler(in *pb.HandShake, out *pb.Message, stream pb.Net
 
 	//验证客户端连接的id， address， type 的正确性
 	if err := validateFirstHandShake(in, validateFn); err != nil {
-		handlerLogger.Printf("[handshake] validate client error: invalidated endpoint{%#v}\n", *in.EndPoint)
+		handlerLogger.Printf("[handshake] validate client error:%v: invalidated endpoint{%#v}\n", err *in.EndPoint)
 		out = makeFirstHandShakeRspMsg(err)
 		return
 	}
