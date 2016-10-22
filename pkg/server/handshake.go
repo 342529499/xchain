@@ -176,7 +176,7 @@ func validateFirstHandShake(msg *pb.HandShake, validateFn func(msg *pb.HandShake
 		return
 	}
 
-	if msg.EndPoint.Type != pb.EndPoint_NON_VALIDATOR || msg.EndPoint.Type != pb.EndPoint_VALIDATOR {
+	if msg.EndPoint.Type != pb.EndPoint_NON_VALIDATOR && msg.EndPoint.Type != pb.EndPoint_VALIDATOR {
 		return InvalidatedHandShakeTypeErr
 	}
 
