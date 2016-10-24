@@ -188,7 +188,6 @@ func validateFirstHandShake(msg *pb.HandShake, validateFn func(msg *pb.HandShake
 
 }
 
-
 //source maybe 192.168.1.230:53694 with client random port
 func validateSource(msg *pb.HandShake, source string) bool {
 	return strings.Contains(source, msg.EndPoint.Address)

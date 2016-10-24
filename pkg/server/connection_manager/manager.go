@@ -56,6 +56,15 @@ func (p *conManager) Get(key string) (Connection, error) {
 	return con, nil
 }
 
+func (p *conManager) Keys() []string {
+	keys := []string{}
+	for key := range p.conns {
+		keys = append(keys, key)
+	}
+
+	return keys
+}
+
 func (p *conManager) BroadcastFunc(waitAll bool, callback func(key string, con Connection) error) error {
 
 	var l errlist.ErrorList = errlist.NewErrorList()

@@ -14,7 +14,7 @@ func SetLocalIP(ip string) error {
 		// check the address type and if it is not a loopback then display it
 		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				if ip == ipnet.IP.String(){
+				if ip == ipnet.IP.String() {
 					Local_Address_IP = ip
 					return nil
 				}

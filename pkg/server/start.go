@@ -47,6 +47,7 @@ func NewAndStartGrpcServer(option *ServerOptions) error {
 	pb.RegisterNetServer(server, nodeServer)
 
 	go nodeServer.node.RunController()
+	go nodeServer.node.StartPrinter(defaultPrinterTimer)
 
 	go func() {
 		if len(option.EntryPointAddress) == 0 {

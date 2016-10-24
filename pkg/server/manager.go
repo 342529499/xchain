@@ -19,7 +19,7 @@ type NetManager struct {
 func newNetManager() *NetManager {
 	m := new(NetManager)
 	m.serverConsManager = cm.NewConnectionsManager(cm.Default_Suggested_MaxCons)
-	m.serverConsManager = cm.NewConnectionsManager(cm.Default_Suggested_MaxCons)
+	m.clientConsManager = cm.NewConnectionsManager(cm.Default_Suggested_MaxCons)
 	m.keyMarker = map[string]uint8{}
 
 	return m

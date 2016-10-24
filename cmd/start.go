@@ -9,7 +9,6 @@ import (
 	"github.com/1851616111/xchain/pkg/server"
 	"github.com/1851616111/xchain/pkg/util"
 	"github.com/1851616111/xchain/pkg/util/file"
-
 )
 
 type StartOptions struct {
@@ -83,7 +82,7 @@ func (options *StartOptions) Run(c *cobra.Command, args []string) {
 	server.NewAndStartGrpcServer(serverOptions)
 }
 
-func (options *StartOptions) Complete () error {
+func (options *StartOptions) Complete() error {
 	if options.peer.netAddress != "" {
 		util.SetLocalIP(options.peer.netAddress)
 		options.peer.id = server.GenerateId()
@@ -107,5 +106,3 @@ func (options *StartOptions) Validate(args []string) error {
 
 	return nil
 }
-
-

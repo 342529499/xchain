@@ -6,5 +6,6 @@ type Manager interface {
 	Del(key string)
 	Get(key string) (Connection, error)
 
+	Keys() []string
 	BroadcastFunc(waitAll bool, cb func(string, Connection) error) error
 }
