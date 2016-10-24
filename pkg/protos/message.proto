@@ -25,6 +25,8 @@ message Message {
         Ledger_Block_Sync = 9;
 
         Identity_Share = 10;
+
+        Error = 11;
     }
 
     Action action = 1;

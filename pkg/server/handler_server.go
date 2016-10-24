@@ -60,13 +60,17 @@ func (s *nodeServer) Connect(stream pb.Net_ConnectServer) error {
 			s.node.handshakeHandler(req, rsp, stream)
 
 		case pb.Message_Net_PING:
+
+			s.node.pingHandler(msg, rsp)
+
 			log.Printf("recv ping msg %s\b.", msg.String())
 
 		default:
 			log.Printf("recv unsupport ping msg %s\b.", msg.String())
-			stream.Send(msg)
 		}
 
-		stream.Send(rsp)
+		if rsp != nil {
+			stream.Send(rsp)
+		}
 	}
 }

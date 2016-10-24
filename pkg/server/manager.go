@@ -70,5 +70,4 @@ func (m *NetManager) get(key string) (cm.Connection, error) {
 	} else {
 		return m.clientConsManager.Get(key)
 	}
-
 }

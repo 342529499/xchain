@@ -42,3 +42,8 @@ message HandShakeResponse {
     google.protobuf.Timestamp timestamp = 3;
 
 }
+
+message Ping {
+    repeated EndPoint endPoint = 1;
+}
+

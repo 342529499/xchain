@@ -2,7 +2,7 @@ package array
 
 func RemoveSliceElement(l []string, target string) []string {
 	exec := true
-	rangeSlice(l, &exec, func(i int, str string) error {
+	RangeSlice(l, &exec, func(i int, str string) error {
 
 		if target != str {
 			return nil
@@ -28,9 +28,9 @@ func RemoveSliceElement(l []string, target string) []string {
 	return l
 }
 
-func rangeSlice(l []string, execute *bool, cb func(index int, v string) error) (err error) {
+func RangeSlice(l []string, exec *bool, cb func(index int, v string) error) (err error) {
 	for i, v := range l {
-		if !*execute {
+		if !*exec {
 			return nil
 		}
 		if err = cb(i, v); err != nil {

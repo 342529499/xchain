@@ -3,7 +3,6 @@ package server
 import (
 	pb "github.com/1851616111/xchain/pkg/protos"
 	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
-	sliceutil "github.com/1851616111/xchain/pkg/util/slice"
 	"sync"
 )
 
@@ -61,37 +60,6 @@ type EndPointManager struct {
 
 	IDToAddress map[string]string
 	AddressToID map[string]string
-}
-
-func (m *EndPointManager) addEndPoint(ep pb.EndPoint) {
-	var targetSlice []string
-	var key string = ep.Id
-
-	switch ep.Type {
-	case pb.EndPoint_VALIDATOR:
-		targetSlice = m.ValidatorList
-	case pb.EndPoint_NON_VALIDATOR:
-		targetSlice = m.NonValidateList
-	}
-
-	targetSlice = append(targetSlice, key)
-	m.IDToAddress[key] = ep.Address
-	m.AddressToID[ep.Address] = key
-
-}
-
-func (m *EndPointManager) delEndPoint(ep pb.EndPoint) {
-	var key string = ep.Id
-
-	switch ep.Type {
-	case pb.EndPoint_VALIDATOR:
-		m.ValidatorList = sliceutil.RemoveSliceElement(m.ValidatorList, key)
-	case pb.EndPoint_NON_VALIDATOR:
-		m.ValidatorList = sliceutil.RemoveSliceElement(m.NonValidateList, key)
-	}
-
-	delete(m.IDToAddress, key)
-	delete(m.AddressToID, ep.Address)
 }
 
 //网络节点接受某台node加入的接口
@@ -157,11 +125,4 @@ func (n *Node) Exist(address string) bool {
 
 func (n *Node) GetLocalEndPoint() *pb.EndPoint {
 	return &n.localEndPoint
-}
-
-func newEndPointManager() *EndPointManager {
-	m := new(EndPointManager)
-	m.IDToAddress = map[string]string{}
-	m.AddressToID = map[string]string{}
-	return m
 }
