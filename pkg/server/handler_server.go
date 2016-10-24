@@ -41,7 +41,7 @@ type nodeServer struct {
 
 func (s *nodeServer) Connect(stream pb.Net_ConnectServer) error {
 
-	var rsp *pb.Message
+	rsp := &pb.Message{}
 	for {
 		msg, err := stream.Recv()
 		if err == io.EOF {

@@ -124,7 +124,7 @@ func (h *handshakeManager) handlerJoin(con cm.Connection) (err error) {
 				return errors.New("second handshake failded, endpoint id nil.")
 			}
 
-			if secondHandShake.EndPoint.Type != pb.EndPoint_VALIDATOR || secondHandShake.EndPoint.Type != pb.EndPoint_NON_VALIDATOR {
+			if secondHandShake.EndPoint.Type != pb.EndPoint_VALIDATOR && secondHandShake.EndPoint.Type != pb.EndPoint_NON_VALIDATOR {
 				return errors.New("second handshake failded, endpoint type nil")
 			}
 
