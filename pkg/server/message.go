@@ -19,6 +19,19 @@ func makeKeepaliveMsg() *pb.Message {
 	}
 }
 
+
+func makePingReqMsg() *pb.Message {
+	ping := &pb.Ping{}
+	timeStamp, _ := ptypes.TimestampProto(time.Now())
+	payLoad, _ := proto.Marshal(ping)
+	return 	&pb.Message{
+		Action:    pb.Action_Request,
+		Type:      pb.Message_Net_PING,
+		Payload:   payLoad,
+		Timestamp: timeStamp,
+	}
+}
+
 func makePingRspMsg(epList []*pb.EndPoint) *pb.Message {
 	ping := &pb.Ping{
 		EndPoint: epList,

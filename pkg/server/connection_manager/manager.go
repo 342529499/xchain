@@ -65,12 +65,12 @@ func (p *conManager) Keys() []string {
 	return keys
 }
 
-func (p *conManager) BroadcastFunc(waitAll bool, callback func(key string, con Connection) error) error {
+func (p *conManager) BroadcastFunc(ignoreError bool, callback func(key string, con Connection) error) error {
 
 	var l errlist.ErrorList = errlist.NewErrorList()
 	for key, con := range p.conns {
 		if err := callback(key, con); err != nil {
-			if waitAll {
+			if ignoreError {
 				l.Append(err)
 			} else {
 				return err

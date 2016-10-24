@@ -7,5 +7,5 @@ type Manager interface {
 	Get(key string) (Connection, error)
 
 	Keys() []string
-	BroadcastFunc(waitAll bool, cb func(string, Connection) error) error
+	BroadcastFunc(ignoreError bool, cb func(string, Connection) error) error
 }

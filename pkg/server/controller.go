@@ -5,11 +5,15 @@ import (
 	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
 	"log"
 	"os"
+	"time"
 )
 
-var logger = log.New(os.Stderr, "controller:", log.LstdFlags)
+var logger = log.New(os.Stderr, "[controller]", log.LstdFlags)
+
+
 
 func (n *Node) RunController() {
+
 	for {
 		select {
 		case rc := <-n.recvConnectCh:
@@ -38,6 +42,19 @@ func (n *Node) RunController() {
 			continue
 
 			logger.Printf("node controller: success launch connection for %s\n", task.targetAddress)
+
+		case <- time.Tick(n.pingDuration):
+			if err := n.netManager.BroadcastFunc(true, func(id string, con cm.Connection) error  {
+				//将 err 与 keepalive 结合起来
+				if err := con.Send(makePingReqMsg()); err != nil {
+					logger.Printf("broadcast ping id:%s err %v\n", id, err)
+					return err
+				}
+
+				return nil
+			}); err != nil {
+				logger.Printf("broadcast ping err %v\n", err)
+			}
 		}
 	}
 }

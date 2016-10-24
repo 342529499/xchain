@@ -71,3 +71,12 @@ func (m *NetManager) get(key string) (cm.Connection, error) {
 		return m.clientConsManager.Get(key)
 	}
 }
+
+func (m *NetManager) BroadcastFunc(ignoreError bool, cb func(string, cm.Connection) error) error {
+
+	if err := m.clientConsManager.BroadcastFunc(ignoreError, cb); err != nil && !ignoreError {
+		return err
+	}
+
+	return m.serverConsManager.BroadcastFunc(ignoreError, cb)
+}

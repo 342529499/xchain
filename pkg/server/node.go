@@ -4,11 +4,17 @@ import (
 	pb "github.com/1851616111/xchain/pkg/protos"
 	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
 	"sync"
+	"time"
 )
+
+
 
 var (
 	singleton sync.Once
 	node      *Node
+
+	//开发环境时为20秒
+	develop_Ping_Duration time.Duration = time.Second * 20
 )
 
 func newNode(local pb.EndPoint) *Node {
@@ -22,6 +28,8 @@ func newNode(local pb.EndPoint) *Node {
 			recvConnectCh: make(chan *recvConnetionMetadata, 30),
 
 			lounchConnectCh: make(chan *lounchConnectionMetadata, 30),
+
+			pingDuration: develop_Ping_Duration,
 		}
 	})
 
@@ -49,6 +57,8 @@ type Node struct {
 
 	//发起新的客户端接入请求
 	lounchConnectCh chan *lounchConnectionMetadata
+
+	pingDuration time.Duration
 }
 
 type EndPointManager struct {
