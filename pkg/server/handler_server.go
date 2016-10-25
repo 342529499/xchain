@@ -42,7 +42,22 @@ func (s *nodeServer) Connect(stream pb.Net_ConnectServer) error {
 func serverConnectionHandler(stream pb.Net_ConnectServer) error {
 	node := getNode()
 
-	rsp := &pb.Message{}
+	rsp := make(chan *pb.Message, 30)
+	stop := make(chan struct{}, 1)
+	go func() {
+		for {
+			select {
+			case msg := <-rsp:
+				if Is_Develop_Mod {
+					fmt.Printf("[server] sending message %v\n", *msg)
+				}
+				stream.Send(msg)
+			case <-stop:
+				return
+			}
+		}
+	}()
+
 	for {
 		msg, err := stream.Recv()
 		if err == io.EOF {
@@ -70,15 +85,6 @@ func serverConnectionHandler(stream pb.Net_ConnectServer) error {
 			log.Printf("recv unsupport ping msg %s\b.", msg.String())
 		}
 
-		if rsp != nil {
-			if Is_Develop_Mod {
-				fmt.Printf("sending message %v\n", *rsp)
-			}
-
-			stream.Send(rsp)
-		}
-
-		rsp = new(pb.Message)
 	}
 	return nil
 }

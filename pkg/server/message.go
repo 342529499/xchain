@@ -76,12 +76,3 @@ func makeErrRspMsg(err error) *pb.Message {
 		Timestamp: timeStamp,
 	}
 }
-
-func responseErr(out *pb.Message, err error) {
-	if err == nil {
-		return
-	}
-
-	*out = *makeErrRspMsg(err)
-	return
-}

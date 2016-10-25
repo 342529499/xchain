@@ -74,10 +74,25 @@ func (n *Node) ConnectEntryPoint(entryPoint string) error {
 	}
 }
 
-func clientConnectionHandler(con cm.Connection) error {
+func clientConnectionHandler(ep pb.EndPoint, con cm.Connection) error {
 	node := getNode()
 
-	rsp := &pb.Message{}
+	rsp := make(chan *pb.Message, 30)
+	stop := make(chan struct{}, 1)
+	go func() {
+		for {
+			select {
+			case msg := <-rsp:
+				if Is_Develop_Mod {
+					fmt.Printf("[client:%s] sending message %v\n", ep.Id, *msg)
+				}
+				con.Send(msg)
+			case <-stop:
+				return
+			}
+		}
+	}()
+
 	for {
 		msg, err := con.Recv()
 		if err == io.EOF {
@@ -93,18 +108,8 @@ func clientConnectionHandler(con cm.Connection) error {
 			node.pingHandler(msg, rsp)
 
 		default:
-			log.Printf("recv unsupport ping msg %s\b.", msg.String())
+			log.Printf("[client:%s] recv unsupport ping msg %s\b.", msg.String())
 		}
-
-		if rsp != nil {
-			if Is_Develop_Mod {
-				fmt.Printf("[client server] sending message %v\n", *rsp)
-			}
-
-			con.Send(rsp)
-		}
-
-		rsp = new(pb.Message)
 	}
 	return nil
 }

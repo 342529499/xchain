@@ -31,7 +31,7 @@ func (n *Node) RunController() {
 			var successFn = func(target pb.EndPoint, con cm.Connection) error {
 				n.Connect(target, con)
 
-				go clientConnectionHandler(con)
+				go clientConnectionHandler(target, con)
 
 				return nil
 
