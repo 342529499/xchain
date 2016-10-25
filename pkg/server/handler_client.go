@@ -103,6 +103,8 @@ func clientConnectionHandler(con cm.Connection) error {
 
 			con.Send(rsp)
 		}
+
+		rsp = new(pb.Message)
 	}
 	return nil
 }
