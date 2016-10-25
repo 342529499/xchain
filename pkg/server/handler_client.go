@@ -98,7 +98,7 @@ func clientConnectionHandler(con cm.Connection) error {
 
 		if rsp != nil {
 			if Is_Develop_Mod {
-				fmt.Printf("sending message %v\n", *rsp)
+				fmt.Printf("[client server] sending message %v\n", *rsp)
 			}
 
 			con.Send(rsp)
