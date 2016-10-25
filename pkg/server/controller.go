@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
 	"log"
@@ -50,8 +49,7 @@ func (n *Node) RunController() {
 
 		case task := <-n.lounchClientCh:
 
-			fmt.Printf("---------------- to connect addr: %s-----------------\n", task.targetAddress)
-
+			logger.Printf("connect to entry point %s\n", task.targetAddress)
 			//接收到一个作为客户端发起连接的tash时
 			//先调用实际的握手handle流程，当握手成功后
 			//通过successfn回调n.Connect() 将信息加入到node节点上

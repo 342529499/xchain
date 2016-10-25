@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	clientLogger            = log.New(os.Stderr, "handler_client", log.LstdFlags)
+	clientLogger            = log.New(os.Stderr, "[Event]", log.LstdFlags)
 	No_EntryPoint_Err error = errors.New("no entrypoint")
 )
 
