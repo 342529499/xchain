@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-
-
 var (
 	singleton sync.Once
 	node      *Node

@@ -19,12 +19,11 @@ func makeKeepaliveMsg() *pb.Message {
 	}
 }
 
-
 func makePingReqMsg() *pb.Message {
 	ping := &pb.Ping{}
 	timeStamp, _ := ptypes.TimestampProto(time.Now())
 	payLoad, _ := proto.Marshal(ping)
-	return 	&pb.Message{
+	return &pb.Message{
 		Action:    pb.Action_Request,
 		Type:      pb.Message_Net_PING,
 		Payload:   payLoad,
@@ -83,6 +82,6 @@ func responseErr(out *pb.Message, err error) {
 		return
 	}
 
-	out = makeErrRspMsg(err)
+	*out = *makeErrRspMsg(err)
 	return
 }

@@ -12,7 +12,8 @@ import (
 )
 
 type StartOptions struct {
-	peer *PeerOptions
+	peer     *PeerOptions
+	isDevMod bool
 }
 
 type PeerOptions struct {
@@ -52,6 +53,8 @@ func newCommandStart(out io.Writer) (*cobra.Command, *StartOptions) {
 
 	flags.StringVar(&options.peer.entryPointAddress, "entryPointAddress", "", "The address to join the network")
 
+	flags.BoolVar(&options.isDevMod, "isDevelopMod", false, "The mode(develop/product) node run.")
+
 	flags.BoolVar(&options.peer.tlsEnabled, "tls.enabled", false, "TLS settings for p2p communications")
 	flags.StringVar(&options.peer.tlsCertPath, "tls.cert", "", "TLS cert file")
 	flags.StringVar(&options.peer.tlsKeyPath, "tls.key", "", "TLS key file")
@@ -71,6 +74,7 @@ func (options *StartOptions) Run(c *cobra.Command, args []string) {
 		Address:         options.peer.netAddress,
 		ListenerAddress: options.peer.listenAddress,
 		IsValidator:     options.peer.isValidator,
+		IsDevelopMod:    options.isDevMod,
 
 		EntryPointAddress: options.peer.entryPointAddress,
 

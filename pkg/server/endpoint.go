@@ -3,6 +3,12 @@ package server
 import (
 	pb "github.com/1851616111/xchain/pkg/protos"
 	sliceutil "github.com/1851616111/xchain/pkg/util/slice"
+	"log"
+	"os"
+)
+
+var (
+	endPointLog = log.New(os.Stderr, "[endpoint]", log.LstdFlags)
 )
 
 func newEndPointManager() *EndPointManager {
@@ -102,5 +108,15 @@ func ListWithOutLocalEP(l []*pb.EndPoint, local *pb.EndPoint) []*pb.EndPoint {
 	}
 
 	return l
+}
+
+func printEPList(l []*pb.EndPoint) {
+
+	if Is_Develop_Mod {
+		endPointLog.Printf("endpoints list:\n")
+		for _, v := range l {
+			endPointLog.Println("{id:\"%s\",address:\"%s\",type\":\"%d\"}\n", v.Id, v.Address, v.Type)
+		}
+	}
 
 }

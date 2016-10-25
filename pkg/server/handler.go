@@ -50,7 +50,11 @@ func (n *Node) handshakeHandler(in *pb.HandShake, out *pb.Message, stream pb.Net
 
 func (n *Node) pingHandler(in *pb.Message, out *pb.Message) {
 	if isMsgRequest(in) {
-		out = makePingRspMsg(ListWithLocalEP(n.epManager.list(), n.GetLocalEndPoint()))
+		epList := ListWithLocalEP(n.epManager.list(), n.GetLocalEndPoint())
+
+		printEPList(epList)
+
+		*out = *makePingRspMsg(epList)
 		return
 
 	} else if isMsgResponse(in) {
@@ -58,6 +62,8 @@ func (n *Node) pingHandler(in *pb.Message, out *pb.Message) {
 		if err != nil {
 			responseErr(out, err)
 		}
+
+		printEPList(pbList)
 		pbList = ListWithOutLocalEP(pbList, n.GetLocalEndPoint())
 
 		n.epManager.findNewEndPointHandler(pbList, func(ep *pb.EndPoint) {

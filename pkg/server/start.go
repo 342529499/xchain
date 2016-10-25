@@ -16,12 +16,18 @@ import (
 	"os"
 )
 
+var (
+	Is_Develop_Mod bool
+)
+
 func NewAndStartGrpcServer(option *ServerOptions) error {
 	if option == nil {
 		option = getDefaultServerOptions()
 	} else if err := option.validate(); err != nil {
 		return err
 	}
+
+	Is_Develop_Mod = option.IsDevelopMod
 
 	option.println()
 
@@ -75,6 +81,7 @@ type ServerOptions struct {
 	//0.0.0.0:10690
 	ListenerAddress string
 	IsValidator     bool
+	IsDevelopMod    bool
 
 	//网络的一个节点地址
 	EntryPointAddress string
@@ -115,6 +122,11 @@ func (o *ServerOptions) println() {
 	fmt.Printf("Net Address: %s\n", o.Address)
 	fmt.Printf("Listener Address %s\n", o.ListenerAddress)
 	fmt.Printf("Validator: %v\n", o.IsValidator)
+	if o.IsDevelopMod {
+		fmt.Printf("Running Mod: %v\n", "develop")
+	} else {
+		fmt.Printf("Running Mod: %v\n", "product")
+	}
 
 }
 
