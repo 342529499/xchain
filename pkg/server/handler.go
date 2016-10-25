@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	handlerLog = log.New(os.Stderr, "handler:", log.LstdFlags)
+	handlerLog = log.New(os.Stderr, "[handler]", log.LstdFlags)
 )
 
 func (n *Node) handshakeHandler(in *pb.HandShake, out chan *pb.Message, stream pb.Net_ConnectServer) {
@@ -42,7 +42,7 @@ func (n *Node) handshakeHandler(in *pb.HandShake, out chan *pb.Message, stream p
 		out <- makeFirstHandShakeRspMsg(errors.New("accept connection falied"))
 	}
 
-	handlerLog.Printf("[handshake] handle client{ID:%s} success", in.EndPoint.Id)
+	handlerLog.Printf("[handshake] {ID:%s} connect success", in.EndPoint.Id)
 	return
 }
 

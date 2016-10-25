@@ -117,11 +117,12 @@ func (opts *ServerOptions) validate() error {
 }
 
 func (o *ServerOptions) println() {
-	fmt.Printf("------------- xchain start ---------------\n")
+	fmt.Printf("------------------------ xchain config ------------------------\n")
 	fmt.Printf("ID: %s\n", o.ID)
 	fmt.Printf("Net Address: %s\n", o.Address)
 	fmt.Printf("Listener Address %s\n", o.ListenerAddress)
 	fmt.Printf("Validator: %v\n", o.IsValidator)
+	fmt.Printf("------------------------ xchain config ------------------------\n")
 	if o.IsDevelopMod {
 		fmt.Printf("Running Mod: %v\n", "develop")
 	} else {
