@@ -77,6 +77,8 @@ func serverConnectionHandler(stream pb.Net_ConnectServer) error {
 
 			stream.Send(rsp)
 		}
+
+		rsp = new(pb.Message)
 	}
 	return nil
 }
