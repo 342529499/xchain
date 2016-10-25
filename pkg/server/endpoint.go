@@ -104,7 +104,7 @@ func ListWithOutLocalEP(l []*pb.EndPoint, local *pb.EndPoint) []*pb.EndPoint {
 
 	for idx, ep := range l {
 		if ep.Id == local.Id {
-			return append(l[:idx], l[idx+1])
+			return append(l[:idx], l[idx+1:]...)
 		}
 	}
 
