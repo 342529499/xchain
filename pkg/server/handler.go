@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"google.golang.org/grpc/peer"
 	"log"
@@ -51,7 +52,7 @@ func (n *Node) handshakeHandler(in *pb.HandShake, out *pb.Message, stream pb.Net
 func (n *Node) pingHandler(in *pb.Message, out *pb.Message) {
 	if isMsgRequest(in) {
 		epList := ListWithLocalEP(n.epManager.list(), n.GetLocalEndPoint())
-
+		fmt.Printf("---------epList:%v\n", epList)
 		printEPList(epList)
 
 		*out = *makePingRspMsg(epList)
@@ -62,7 +63,7 @@ func (n *Node) pingHandler(in *pb.Message, out *pb.Message) {
 		if err != nil {
 			responseErr(out, err)
 		}
-
+		fmt.Println("---------rsp")
 		printEPList(pbList)
 		pbList = ListWithOutLocalEP(pbList, n.GetLocalEndPoint())
 

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
 	"log"
@@ -42,7 +43,9 @@ func (n *Node) RunController() {
 			logger.Printf("node controller: success launch connection for %s\n", task.targetAddress)
 
 		case <-time.Tick(n.pingDuration):
+			fmt.Println("--------------")
 			if err := n.netManager.BroadcastFunc(true, func(id string, con cm.Connection) error {
+				fmt.Println("ping ------> id:%s\n ", id)
 				//将 err 与 keepalive 结合起来
 				if err := con.Send(makePingReqMsg()); err != nil {
 					logger.Printf("broadcast ping id:%s err %v\n", id, err)

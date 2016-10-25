@@ -32,20 +32,17 @@ func (m *EndPointManager) ifExistEndPoint(epList *pb.EndPoint) bool {
 }
 
 func (m *EndPointManager) addEndPoint(ep pb.EndPoint) {
-	var targetSlice []string
 	var key string = ep.Id
 
 	switch ep.Type {
 	case pb.EndPoint_VALIDATOR:
-		targetSlice = m.ValidatorList
+		m.ValidatorList = append(m.ValidatorList, ep.Id)
 	case pb.EndPoint_NON_VALIDATOR:
-		targetSlice = m.NonValidateList
+		m.NonValidateList = append(m.NonValidateList, ep.Id)
 	}
 
-	targetSlice = append(targetSlice, key)
 	m.IDToAddress[key] = ep.Address
 	m.AddressToID[ep.Address] = key
-
 }
 
 func (m *EndPointManager) delEndPoint(ep pb.EndPoint) {
@@ -64,7 +61,12 @@ func (m *EndPointManager) delEndPoint(ep pb.EndPoint) {
 
 func (m *EndPointManager) list() []*pb.EndPoint {
 
-	validateEPs := make([]*pb.EndPoint, len(m.ValidatorList))
+	if Is_Develop_Mod {
+		endPointLog.Printf("validate:%v\n", m.ValidatorList)
+		endPointLog.Printf("non-validate:%v\n", m.NonValidateList)
+	}
+
+	validateEPs, nonValidateEPs := []*pb.EndPoint{}, []*pb.EndPoint{}
 	rangeValidateFunc := func(idx int, id string) error {
 		validateEPs = append(validateEPs, &pb.EndPoint{
 			Id:      id,
@@ -77,7 +79,6 @@ func (m *EndPointManager) list() []*pb.EndPoint {
 	exec := true
 	sliceutil.RangeSlice(m.ValidatorList, &exec, rangeValidateFunc)
 
-	nonValidateEPs := make([]*pb.EndPoint, len(m.NonValidateList))
 	rangeNonValidateFunc := func(idx int, id string) error {
 		nonValidateEPs = append(nonValidateEPs, &pb.EndPoint{
 			Id:      id,
@@ -87,7 +88,7 @@ func (m *EndPointManager) list() []*pb.EndPoint {
 		return nil
 	}
 
-	sliceutil.RangeSlice(m.ValidatorList, &exec, rangeNonValidateFunc)
+	sliceutil.RangeSlice(m.NonValidateList, &exec, rangeNonValidateFunc)
 
 	return append(validateEPs, nonValidateEPs...)
 }
@@ -113,9 +114,9 @@ func ListWithOutLocalEP(l []*pb.EndPoint, local *pb.EndPoint) []*pb.EndPoint {
 func printEPList(l []*pb.EndPoint) {
 
 	if Is_Develop_Mod {
-		endPointLog.Printf("endpoints list:\n")
+		endPointLog.Println("endpoints list:")
 		for _, v := range l {
-			endPointLog.Println("{id:\"%s\",address:\"%s\",type\":\"%d\"}\n", v.Id, v.Address, v.Type)
+			endPointLog.Printf("{id:\"%s\",address:\"%s\",type\":\"%d\"}\n", v.Id, v.Address, v.Type)
 		}
 	}
 

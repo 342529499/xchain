@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
 )
 
@@ -74,9 +75,18 @@ func (m *NetManager) get(key string) (cm.Connection, error) {
 
 func (m *NetManager) BroadcastFunc(ignoreError bool, cb func(string, cm.Connection) error) error {
 
-	if err := m.clientConsManager.BroadcastFunc(ignoreError, cb); err != nil && !ignoreError {
-		return err
-	}
+	err1 := m.clientConsManager.BroadcastFunc(ignoreError, cb)
+	err2 := m.serverConsManager.BroadcastFunc(ignoreError, cb)
 
-	return m.serverConsManager.BroadcastFunc(ignoreError, cb)
+	fmt.Printf("client connection manager broadcast err %v\n", err1)
+	fmt.Printf("client connection manager broadcast err %v\n", err2)
+	//if err := m.clientConsManager.BroadcastFunc(ignoreError, cb); err != nil{
+	//	if !ignoreError {
+	//		return err
+	//	}
+	//}
+	//
+	//return m.serverConsManager.BroadcastFunc(ignoreError, cb)
+
+	return nil
 }
