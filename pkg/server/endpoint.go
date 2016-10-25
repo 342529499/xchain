@@ -45,18 +45,26 @@ func (m *EndPointManager) addEndPoint(ep pb.EndPoint) {
 	m.AddressToID[ep.Address] = key
 }
 
-func (m *EndPointManager) delEndPoint(ep pb.EndPoint) {
-	var key string = ep.Id
-
-	switch ep.Type {
-	case pb.EndPoint_VALIDATOR:
-		m.ValidatorList = sliceutil.RemoveSliceElement(m.ValidatorList, key)
-	case pb.EndPoint_NON_VALIDATOR:
-		m.ValidatorList = sliceutil.RemoveSliceElement(m.NonValidateList, key)
+func (m *EndPointManager) delEndPoint(delID string) {
+	address, exist := m.IDToAddress[delID]
+	if !exist {
+		return
 	}
 
-	delete(m.IDToAddress, key)
-	delete(m.AddressToID, ep.Address)
+	for idx, id := range m.ValidatorList {
+		if id == delID {
+			m.ValidatorList = append(m.ValidatorList[:idx], m.ValidatorList[idx+1:]...)
+		}
+	}
+
+	for idx, id := range m.NonValidateList {
+		if id == delID {
+			m.NonValidateList = append(m.NonValidateList[:idx], m.NonValidateList[idx+1:]...)
+		}
+	}
+
+	delete(m.IDToAddress, delID)
+	delete(m.AddressToID, address)
 }
 
 func (m *EndPointManager) list() []*pb.EndPoint {

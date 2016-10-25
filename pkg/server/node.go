@@ -13,6 +13,7 @@ var (
 
 	//开发环境时为20秒
 	develop_Ping_Duration time.Duration = time.Second * 60
+	done                  struct{}      = struct{}{}
 )
 
 func newNode(local pb.EndPoint) *Node {
@@ -25,9 +26,13 @@ func newNode(local pb.EndPoint) *Node {
 
 			recvConnectCh: make(chan *recvConnetionMetadata, 30),
 
-			lounchConnectCh: make(chan *lounchConnectionMetadata, 30),
+			lounchClientCh: make(chan *lounchConnectionMetadata, 30),
 
 			pingDuration: develop_Ping_Duration,
+
+			pingMaxFailureTimes: map[string]uint{},
+
+			runningClientDoneCH: map[string]chan struct{}{},
 		}
 	})
 
@@ -54,9 +59,14 @@ type Node struct {
 	recvConnectCh chan *recvConnetionMetadata
 
 	//发起新的客户端接入请求
-	lounchConnectCh chan *lounchConnectionMetadata
+	lounchClientCh chan *lounchConnectionMetadata
 
+	//ping的间隔，定期取回其他节点的node List 信息
 	pingDuration time.Duration
+
+	pingMaxFailureTimes map[string]uint
+
+	runningClientDoneCH map[string]chan struct{}
 }
 
 type EndPointManager struct {
@@ -107,7 +117,7 @@ func (n *Node) CancelAccept(ep pb.EndPoint) {
 
 	key := ep.Id
 
-	n.epManager.delEndPoint(ep)
+	n.epManager.delEndPoint(ep.Id)
 	n.netManager.delete(key)
 	return
 }
@@ -117,10 +127,8 @@ func (n *Node) DisConnect(ep pb.EndPoint, con cm.Connection) {
 	n.Lock()
 	defer n.Unlock()
 
-	key := ep.Id
-
-	n.epManager.delEndPoint(ep)
-	n.netManager.delete(key)
+	n.epManager.delEndPoint(ep.Id)
+	n.netManager.delete(ep.Id)
 }
 
 func (n *Node) Exist(address string) bool {
@@ -133,4 +141,21 @@ func (n *Node) Exist(address string) bool {
 
 func (n *Node) GetLocalEndPoint() *pb.EndPoint {
 	return &n.localEndPoint
+}
+
+func (n *Node) RemoteClient(id string) {
+	n.Lock()
+	defer n.Unlock()
+
+	if _, exists := n.pingMaxFailureTimes[id]; !exists {
+		n.pingMaxFailureTimes[id] = 1
+	}
+
+	n.pingMaxFailureTimes[id]++
+
+	if n.pingMaxFailureTimes[id] == 3 {
+		n.netManager.delete(id)
+		n.epManager.delEndPoint(id)
+		n.runningClientDoneCH[id] <- done
+	}
 }

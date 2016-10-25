@@ -56,7 +56,7 @@ func (n *Node) ConnectEntryPoint(entryPoint string) error {
 
 	//设计上应该为1，防止阻塞
 	errCh, doneCh := make(chan error, 10), make(chan struct{}, 10)
-	n.lounchConnectCh <- &lounchConnectionMetadata{
+	n.lounchClientCh <- &lounchConnectionMetadata{
 		targetAddress: entryPoint,
 		errCh:         errCh,
 		doneCh:        doneCh,
@@ -74,11 +74,10 @@ func (n *Node) ConnectEntryPoint(entryPoint string) error {
 	}
 }
 
-func clientConnectionHandler(ep pb.EndPoint, con cm.Connection) error {
+func clientConnectionHandler(ep pb.EndPoint, con cm.Connection, done chan struct{}) error {
 	node := getNode()
 
 	rsp := make(chan *pb.Message, 30)
-	stop := make(chan struct{}, 1)
 	go func() {
 		for {
 			select {
@@ -87,13 +86,18 @@ func clientConnectionHandler(ep pb.EndPoint, con cm.Connection) error {
 					clientLogger.Printf("[client id:%s] sending message %s\n", ep.Id, formatMessage(msg))
 				}
 				con.Send(msg)
-			case <-stop:
-				return
 			}
 		}
 	}()
 
 	for {
+
+		select {
+		case <-done:
+			return nil
+		default:
+		}
+
 		msg, err := con.Recv()
 		if err == io.EOF {
 			clientLogger.Println("read eof")
@@ -106,7 +110,6 @@ func clientConnectionHandler(ep pb.EndPoint, con cm.Connection) error {
 		switch msg.Type {
 		case pb.Message_Net_PING:
 			node.pingHandler(msg, rsp)
-
 		default:
 			log.Printf("[client:%s] recv unsupport ping msg %s\b.", msg.String())
 		}
