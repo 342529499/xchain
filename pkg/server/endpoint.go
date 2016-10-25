@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	endPointLog = log.New(os.Stderr, "[endpoint]", log.LstdFlags)
+	endPointLog = log.New(os.Stderr, "[Event]", log.LstdFlags)
 )
 
 func newEndPointManager() *EndPointManager {
@@ -93,14 +93,12 @@ func (m *EndPointManager) list() []*pb.EndPoint {
 	return append(validateEPs, nonValidateEPs...)
 }
 
-func ListWithLocalEP(l []*pb.EndPoint, local *pb.EndPoint) []*pb.EndPoint {
-	return append(l, local)
-}
-
-func ListWithOutLocalEP(l []*pb.EndPoint, local *pb.EndPoint) []*pb.EndPoint {
+func ListWithOutLocalEP(l []*pb.EndPoint) []*pb.EndPoint {
 	if len(l) == 0 {
 		return l
 	}
+
+	local := node.GetLocalEndPoint()
 
 	for idx, ep := range l {
 		if ep.Id == local.Id {
@@ -109,15 +107,4 @@ func ListWithOutLocalEP(l []*pb.EndPoint, local *pb.EndPoint) []*pb.EndPoint {
 	}
 
 	return l
-}
-
-func printEPList(label string, info string, l []*pb.EndPoint) {
-
-	if Is_Develop_Mod {
-		endPointLog.Printf("[%s] %s .endpoints(%d) : ", label, info, len(l))
-		for _, v := range l {
-			endPointLog.Printf("{id:\"%s\",address:\"%s\",type\":\"%d\"}\n", v.Id, v.Address, v.Type)
-		}
-	}
-
 }

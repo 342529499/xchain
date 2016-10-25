@@ -14,7 +14,7 @@ var (
 	printer_All               printerType = 3
 
 	defaultPrinterTimer = time.Second * 60
-	printerHelper       = log.New(os.Stderr, "printer:", log.LstdFlags)
+	printerHelper       = log.New(os.Stderr, "<System>", log.LstdFlags)
 )
 
 type printerType int
@@ -38,10 +38,8 @@ func (p *TimerPrinter) start() {
 	for {
 		select {
 		case <-p.timerCh:
-			printerHelper.Printf("printer time: %s\n", time.Now().String())
 			p.printer.print(printer_All)
 		case printerTYpe := <-p.triggerCh:
-			printerHelper.Printf("printer time: %s\n", time.Now().String())
 			p.printer.print(printerTYpe)
 		}
 	}
@@ -55,14 +53,18 @@ func (n *Node) print(t printerType) {
 
 	switch t {
 	case printer_NetManager_Server:
-		printerHelper.Printf("server connection total: %d\n", len(n.netManager.serverConsManager.Keys()))
-		if len(n.netManager.serverConsManager.Keys()) > 0 {
-			printerHelper.Printf("details:[%s]\n", n.netManager.serverConsManager.Keys())
+		printerHelper.Printf("grpc server num:%d\n", len(n.netManager.serverConsManager.Keys()))
+		if Is_Develop_Mod {
+			if len(n.netManager.serverConsManager.Keys()) > 0 {
+				printerHelper.Printf("details:[%s]\n", n.netManager.serverConsManager.Keys())
+			}
 		}
 	case printer_NetManager_Client:
-		printerHelper.Printf("client connection total: %d\n", len(n.netManager.clientConsManager.Keys()))
-		if len(n.netManager.clientConsManager.Keys()) > 0 {
-			printerHelper.Printf("details:[%s]\n", n.netManager.clientConsManager.Keys())
+		printerHelper.Printf("grpc client num:%d\n", len(n.netManager.clientConsManager.Keys()))
+		if Is_Develop_Mod {
+			if len(n.netManager.clientConsManager.Keys()) > 0 {
+				printerHelper.Printf("details:[%s]\n", n.netManager.clientConsManager.Keys())
+			}
 		}
 	case printer_EndPoint:
 		n.epManager.printEP()
@@ -78,16 +80,16 @@ func (n *Node) print(t printerType) {
 func (n *EndPointManager) printEP() {
 	printerHelper.Printf("node total: %d\n", len(n.NonValidateList)+len(n.ValidatorList))
 
-	if len(n.ValidatorList) > 0 {
-		printerHelper.Printf("non validate details:\n")
+	if len(n.NonValidateList) > 0 {
+		printerHelper.Printf("non-validate details:\n")
 		for _, id := range n.NonValidateList {
-			printerHelper.Printf("{id:%s,ip:%s}\n", id, n.IDToAddress[id])
+			printerHelper.Printf("{ID:%s,Address:%s}\n", id, n.IDToAddress[id])
 		}
 	}
-	if len(n.NonValidateList) > 0 {
+	if len(n.ValidatorList) > 0 {
 		printerHelper.Printf("validate details:\n")
 		for _, id := range n.ValidatorList {
-			printerHelper.Printf("{id:%s,ip:%s}\n", id, n.IDToAddress[id])
+			printerHelper.Printf("{ID:%s,Address:%s}\n", id, n.IDToAddress[id])
 		}
 	}
 }

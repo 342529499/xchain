@@ -48,34 +48,30 @@ func (n *Node) handshakeHandler(in *pb.HandShake, out chan *pb.Message, stream p
 }
 
 func (n *Node) pingHandler(in *pb.Message, out chan *pb.Message) {
-	if isMsgRequest(in) {
-
-		//发送ping的响应时，不包含自己的节点信息，但会返回请求节点的信息
-		//在处理相应节点时需要去掉自己的节点信息
-		epList := n.epManager.list()
-		printEPList("ping", "处理请求，生成节点列表", epList)
-
+	if in == nil {
+		return
+	}
+	switch in.Action {
+	case pb.Action_Request:
 		out <- makePingRspMsg(n.epManager.list())
 		return
-
-	} else if isMsgResponse(in) {
+	case pb.Action_Response:
 
 		pbList, err := parsePingRspMsg(in)
 		if err != nil {
 			out <- makeErrRspMsg(err)
 			return
 		}
-		pbList = ListWithOutLocalEP(pbList, n.GetLocalEndPoint())
+		pbList = ListWithOutLocalEP(pbList)
 
-		printEPList("ping", "处理相应，对比节点列表", pbList)
 		n.epManager.findNewEndPointHandler(pbList, func(ep *pb.EndPoint) {
 			//todo 这里需不需要处理err？
 			err := n.ConnectEntryPoint(ep.Address + ":10690")
 			handlerLog.Printf("[ping] handle endpoint %s err: %v\n", ep, err)
 		})
 
-	} else {
-		handlerLog.Printf("[ping] unknow ping message %v\n", in)
+	default:
+		handlerLog.Printf("[pingHandler] unsupport message %v\n", in)
 		return
 	}
 }

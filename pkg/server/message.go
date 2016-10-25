@@ -58,14 +58,6 @@ func parsePingRspMsg(in *pb.Message) ([]*pb.EndPoint, error) {
 	return ping.EndPoint, nil
 }
 
-func isMsgRequest(msg *pb.Message) bool {
-	return msg.Action == pb.Action_Request
-}
-
-func isMsgResponse(msg *pb.Message) bool {
-	return msg.Action == pb.Action_Response
-}
-
 func makeErrRspMsg(err error) *pb.Message {
 	timeStamp, _ := ptypes.TimestampProto(time.Now())
 
