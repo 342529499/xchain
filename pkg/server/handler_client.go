@@ -75,9 +75,9 @@ func (n *Node) ConnectEntryPoint(entryPoint string) error {
 }
 
 func clientConnectionHandler(con cm.Connection) error {
-	//node := getNode()
+	node := getNode()
 
-	//rsp := &pb.Message{}
+	rsp := &pb.Message{}
 	for {
 		msg, err := con.Recv()
 		if err == io.EOF {
@@ -88,25 +88,21 @@ func clientConnectionHandler(con cm.Connection) error {
 			return err
 		}
 
-		fmt.Printf("答应客户端handler 收到的msg %v", msg)
-		//switch msg.Type {
-		//case pb.Message_Net_PING:
-		//
-		//	node.pingHandler(msg, rsp)
-		//
-		//	log.Printf("recv ping msg %s\b.", msg.String())
-		//
-		//default:
-		//	log.Printf("recv unsupport ping msg %s\b.", msg.String())
-		//}
-		//
-		//if rsp != nil {
-		//	if Is_Develop_Mod {
-		//		fmt.Printf("sending message %v\n", *rsp)
-		//	}
-		//
-		//	con.Send(rsp)
-		//}
+		switch msg.Type {
+		case pb.Message_Net_PING:
+			node.pingHandler(msg, rsp)
+
+		default:
+			log.Printf("recv unsupport ping msg %s\b.", msg.String())
+		}
+
+		if rsp != nil {
+			if Is_Develop_Mod {
+				fmt.Printf("sending message %v\n", *rsp)
+			}
+
+			con.Send(rsp)
+		}
 	}
 	return nil
 }
