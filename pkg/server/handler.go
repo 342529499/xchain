@@ -70,7 +70,7 @@ func (n *Node) pingHandler(in *pb.Message, out chan *pb.Message) {
 		printEPList("ping", "处理相应，对比节点列表", pbList)
 		n.epManager.findNewEndPointHandler(pbList, func(ep *pb.EndPoint) {
 			//todo 这里需不需要处理err？
-			err := n.ConnectEntryPoint(ep.Address)
+			err := n.ConnectEntryPoint(ep.Address + ":10690")
 			handlerLog.Printf("[ping] handle endpoint %s err: %v\n", ep, err)
 		})
 
