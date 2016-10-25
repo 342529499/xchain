@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"google.golang.org/grpc/peer"
 	"log"
@@ -51,22 +50,25 @@ func (n *Node) handshakeHandler(in *pb.HandShake, out *pb.Message, stream pb.Net
 
 func (n *Node) pingHandler(in *pb.Message, out *pb.Message) {
 	if isMsgRequest(in) {
-		epList := ListWithLocalEP(n.epManager.list(), n.GetLocalEndPoint())
-		fmt.Printf("---------epList:%v\n", epList)
-		printEPList(epList)
 
-		*out = *makePingRspMsg(epList)
+		//发送ping的响应时，不包含自己的节点信息，但会返回请求节点的信息
+		//在处理相应节点时需要去掉自己的节点信息
+		epList := n.epManager.list()
+		printEPList("ping", "处理请求，生成节点列表", epList)
+
+		*out = *makePingRspMsg(n.epManager.list())
 		return
 
 	} else if isMsgResponse(in) {
+
 		pbList, err := parsePingRspMsg(in)
 		if err != nil {
 			responseErr(out, err)
 		}
-		fmt.Println("---------rsp")
-		printEPList(pbList)
+
 		pbList = ListWithOutLocalEP(pbList, n.GetLocalEndPoint())
 
+		printEPList("ping", "处理相应，对比节点列表", pbList)
 		n.epManager.findNewEndPointHandler(pbList, func(ep *pb.EndPoint) {
 			//todo 这里需不需要处理err？
 			err := n.ConnectEntryPoint(ep.Address)

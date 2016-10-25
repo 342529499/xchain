@@ -103,7 +103,7 @@ func ListWithOutLocalEP(l []*pb.EndPoint, local *pb.EndPoint) []*pb.EndPoint {
 	}
 
 	for idx, ep := range l {
-		if ep == local {
+		if ep.Id == local.Id {
 			return append(l[:idx], l[idx+1])
 		}
 	}
@@ -111,10 +111,10 @@ func ListWithOutLocalEP(l []*pb.EndPoint, local *pb.EndPoint) []*pb.EndPoint {
 	return l
 }
 
-func printEPList(l []*pb.EndPoint) {
+func printEPList(label string, info string, l []*pb.EndPoint) {
 
 	if Is_Develop_Mod {
-		endPointLog.Println("endpoints list:")
+		endPointLog.Printf("[%s] %s .endpoints(%d) : ", label, info, len(l))
 		for _, v := range l {
 			endPointLog.Printf("{id:\"%s\",address:\"%s\",type\":\"%d\"}\n", v.Id, v.Address, v.Type)
 		}

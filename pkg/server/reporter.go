@@ -14,7 +14,7 @@ var (
 	printer_EndPoint          printerType = 2
 	printer_All               printerType = 3
 
-	defaultPrinterTimer = time.Second * 30
+	defaultPrinterTimer = time.Second * 60
 	printerHelper       = log.New(os.Stderr, "printer:", log.LstdFlags)
 )
 

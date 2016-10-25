@@ -75,11 +75,9 @@ func (m *NetManager) get(key string) (cm.Connection, error) {
 
 func (m *NetManager) BroadcastFunc(ignoreError bool, cb func(string, cm.Connection) error) error {
 
-	err1 := m.clientConsManager.BroadcastFunc(ignoreError, cb)
-	err2 := m.serverConsManager.BroadcastFunc(ignoreError, cb)
+	m.clientConsManager.BroadcastFunc(ignoreError, cb)
+	m.serverConsManager.BroadcastFunc(ignoreError, cb)
 
-	fmt.Printf("client connection manager broadcast err %v\n", err1)
-	fmt.Printf("client connection manager broadcast err %v\n", err2)
 	//if err := m.clientConsManager.BroadcastFunc(ignoreError, cb); err != nil{
 	//	if !ignoreError {
 	//		return err

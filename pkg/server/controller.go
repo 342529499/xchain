@@ -26,8 +26,15 @@ func (n *Node) RunController() {
 
 		case task := <-n.lounchConnectCh:
 
+			fmt.Printf("---------------- task addr: %s-----------------\n", task.targetAddress)
+
 			var successFn = func(target pb.EndPoint, con cm.Connection) error {
-				return n.Connect(target, con)
+				n.Connect(target, con)
+
+				go clientConnectionHandler(con)
+
+				return nil
+
 			}
 			//接收到一个作为客户端发起连接的tash时
 			//先调用实际的握手handle流程，当握手成功后
@@ -43,9 +50,7 @@ func (n *Node) RunController() {
 			logger.Printf("node controller: success launch connection for %s\n", task.targetAddress)
 
 		case <-time.Tick(n.pingDuration):
-			fmt.Println("--------------")
 			if err := n.netManager.BroadcastFunc(true, func(id string, con cm.Connection) error {
-				fmt.Println("ping ------> id:%s\n ", id)
 				//将 err 与 keepalive 结合起来
 				if err := con.Send(makePingReqMsg()); err != nil {
 					logger.Printf("broadcast ping id:%s err %v\n", id, err)

@@ -52,15 +52,15 @@ func NewAndStartGrpcServer(option *ServerOptions) error {
 	nodeServer := newNodeServer(option.ID, option.Address, option.IsValidator)
 	pb.RegisterNetServer(server, nodeServer)
 
-	go nodeServer.node.RunController()
-	go nodeServer.node.StartPrinter(defaultPrinterTimer)
+	go node.RunController()
+	go node.StartPrinter(defaultPrinterTimer)
 
 	go func() {
 		if len(option.EntryPointAddress) == 0 {
 			return
 		}
 
-		if err := nodeServer.node.ConnectEntryPoint(option.EntryPointAddress); err != nil {
+		if err := node.ConnectEntryPoint(option.EntryPointAddress); err != nil {
 			os.Exit(0)
 		}
 	}()

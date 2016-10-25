@@ -12,7 +12,7 @@ var (
 	node      *Node
 
 	//开发环境时为20秒
-	develop_Ping_Duration time.Duration = time.Second * 20
+	develop_Ping_Duration time.Duration = time.Second * 60
 )
 
 func newNode(local pb.EndPoint) *Node {
