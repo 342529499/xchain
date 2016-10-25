@@ -77,13 +77,5 @@ func (m *NetManager) BroadcastFunc(ignoreError bool, cb func(string, cm.Connecti
 	m.clientConsManager.BroadcastFunc(ignoreError, cb)
 	m.serverConsManager.BroadcastFunc(ignoreError, cb)
 
-	//if err := m.clientConsManager.BroadcastFunc(ignoreError, cb); err != nil{
-	//	if !ignoreError {
-	//		return err
-	//	}
-	//}
-	//
-	//return m.serverConsManager.BroadcastFunc(ignoreError, cb)
-
 	return nil
 }

@@ -26,7 +26,7 @@ func (n *Node) RunController() {
 
 		case task := <-n.lounchConnectCh:
 
-			fmt.Printf("---------------- task addr: %s-----------------\n", task.targetAddress)
+			fmt.Printf("---------------- to connect addr: %s-----------------\n", task.targetAddress)
 
 			var successFn = func(target pb.EndPoint, con cm.Connection) error {
 				n.Connect(target, con)

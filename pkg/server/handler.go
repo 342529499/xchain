@@ -17,7 +17,6 @@ func (n *Node) handshakeHandler(in *pb.HandShake, out chan *pb.Message, stream p
 
 	validateFn := func(msg *pb.HandShake) error {
 		if validateSource(msg, p.Addr.String()) {
-			handlerLog.Printf("[handshake] validate client{%#v} ok\n", *msg.EndPoint)
 			return nil
 		}
 
@@ -26,24 +25,24 @@ func (n *Node) handshakeHandler(in *pb.HandShake, out chan *pb.Message, stream p
 
 	//验证客户端连接的id， address， type 的正确性
 	if err := validateFirstHandShake(in, validateFn); err != nil {
-		handlerLog.Printf("[handshake] validate client error:%v: invalidated endpoint{%#v}\n", err, *in.EndPoint)
+		handlerLog.Printf("[handshake] validate client error:%v: invalidated endpoint{ID:%s}\n", err, in.EndPoint.Id)
 		out <- makeFirstHandShakeRspMsg(err)
 		return
 	}
 
 	if n.Exist(p.Addr.String()) {
-		handlerLog.Printf("[handshake] client{%#v} connection already exists\n", *in)
+		handlerLog.Printf("[handshake] client{ID:%s} connection already exists\n", in.EndPoint.Id)
 		out <- makeFirstHandShakeRspMsg(errors.New("connection already exists"))
 	} else {
 		out <- makeSecondHandShakeReqMsg(node.GetLocalEndPoint())
 	}
 
 	if err := n.Accept(*in.EndPoint, stream); err != nil {
-		handlerLog.Printf("[handshake] accept client{%#v} connection err: %v\n", *in.EndPoint, err)
+		handlerLog.Printf("[handshake] accept client{ID:%s} connection err: %v\n", in.EndPoint.Id, err)
 		out <- makeFirstHandShakeRspMsg(errors.New("accept connection falied"))
 	}
 
-	handlerLog.Printf("[handshake] handle client{%#v} success", *in)
+	handlerLog.Printf("[handshake] handle client{ID:%s} success", in.EndPoint.Id)
 	return
 }
 

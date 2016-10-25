@@ -13,7 +13,7 @@ var (
 	printer_EndPoint          printerType = 2
 	printer_All               printerType = 3
 
-	defaultPrinterTimer = time.Second * 60
+	defaultPrinterTimer = time.Second * 360
 	printerHelper       = log.New(os.Stderr, "<System>", log.LstdFlags)
 )
 
@@ -83,13 +83,13 @@ func (n *EndPointManager) printEP() {
 	if len(n.NonValidateList) > 0 {
 		printerHelper.Printf("non-validate details:\n")
 		for _, id := range n.NonValidateList {
-			printerHelper.Printf("{ID:%s,Address:%s}\n", id, n.IDToAddress[id])
+			printerHelper.Printf("\t{ID:%s,Address:%s}\n", id, n.IDToAddress[id])
 		}
 	}
 	if len(n.ValidatorList) > 0 {
 		printerHelper.Printf("validate details:\n")
 		for _, id := range n.ValidatorList {
-			printerHelper.Printf("{ID:%s,Address:%s}\n", id, n.IDToAddress[id])
+			printerHelper.Printf("\t{ID:%s,Address:%s}\n", id, n.IDToAddress[id])
 		}
 	}
 }
