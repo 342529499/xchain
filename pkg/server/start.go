@@ -122,12 +122,12 @@ func (o *ServerOptions) println() {
 	fmt.Printf("Net Address: %s\n", o.Address)
 	fmt.Printf("Listener Address %s\n", o.ListenerAddress)
 	fmt.Printf("Validator: %v\n", o.IsValidator)
-	fmt.Printf("------------------------ xchain config ------------------------\n")
 	if o.IsDevelopMod {
 		fmt.Printf("Running Mod: %v\n", "develop")
 	} else {
 		fmt.Printf("Running Mod: %v\n", "product")
 	}
+	fmt.Printf("------------------------ xchain config ------------------------\n")
 
 }
 
