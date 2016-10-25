@@ -1,10 +1,9 @@
 package server
 
 import (
-	"time"
-
 	"log"
 	"os"
+	"time"
 )
 
 //运行时打印运行时连接信息
@@ -56,19 +55,16 @@ func (n *Node) print(t printerType) {
 
 	switch t {
 	case printer_NetManager_Server:
-		printerHelper.Printf("-------------------------server connections----------------------------\n")
-		printerHelper.Printf("total: %d\n", len(n.netManager.serverConsManager.Keys()))
+		printerHelper.Printf("server connection total: %d\n", len(n.netManager.serverConsManager.Keys()))
 		if len(n.netManager.serverConsManager.Keys()) > 0 {
 			printerHelper.Printf("details:[%s]\n", n.netManager.serverConsManager.Keys())
 		}
 	case printer_NetManager_Client:
-		printerHelper.Printf("-------------------------client connections----------------------------\n")
-		printerHelper.Printf("total: %d\n", len(n.netManager.clientConsManager.Keys()))
+		printerHelper.Printf("client connection total: %d\n", len(n.netManager.clientConsManager.Keys()))
 		if len(n.netManager.clientConsManager.Keys()) > 0 {
 			printerHelper.Printf("details:[%s]\n", n.netManager.clientConsManager.Keys())
 		}
 	case printer_EndPoint:
-		printerHelper.Printf("----------------------------node endpoints-----------------------------\n")
 		n.epManager.printEP()
 	case printer_All:
 		n.print(printer_NetManager_Server)
@@ -80,14 +76,15 @@ func (n *Node) print(t printerType) {
 }
 
 func (n *EndPointManager) printEP() {
-	printerHelper.Printf("total: %d\n", len(n.NonValidateList)+len(n.ValidatorList))
+	printerHelper.Printf("node total: %d\n", len(n.NonValidateList)+len(n.ValidatorList))
 
-	if len(n.NonValidateList)+len(n.ValidatorList) > 0 {
+	if len(n.ValidatorList) > 0 {
 		printerHelper.Printf("non validate details:\n")
 		for _, id := range n.NonValidateList {
 			printerHelper.Printf("{id:%s,ip:%s}\n", id, n.IDToAddress[id])
 		}
-
+	}
+	if len(n.NonValidateList) > 0 {
 		printerHelper.Printf("validate details:\n")
 		for _, id := range n.ValidatorList {
 			printerHelper.Printf("{id:%s,ip:%s}\n", id, n.IDToAddress[id])

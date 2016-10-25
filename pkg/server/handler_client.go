@@ -84,7 +84,7 @@ func clientConnectionHandler(ep pb.EndPoint, con cm.Connection) error {
 			select {
 			case msg := <-rsp:
 				if Is_Develop_Mod {
-					fmt.Printf("[client:%s] sending message %v\n", ep.Id, *msg)
+					clientLogger.Printf("[client id:%s] sending message %s\n", ep.Id, formatMessage(msg))
 				}
 				con.Send(msg)
 			case <-stop:
@@ -96,7 +96,7 @@ func clientConnectionHandler(ep pb.EndPoint, con cm.Connection) error {
 	for {
 		msg, err := con.Recv()
 		if err == io.EOF {
-			fmt.Println("read eof")
+			clientLogger.Println("read eof")
 		}
 
 		if err != nil {
@@ -112,4 +112,8 @@ func clientConnectionHandler(ep pb.EndPoint, con cm.Connection) error {
 		}
 	}
 	return nil
+}
+
+func formatMessage(msg *pb.Message) string {
+	return fmt.Sprintf("message{Action: %s, Type: %s, PayLoad:%s}", msg.Action, msg.Type.String(), string(msg.Payload))
 }
