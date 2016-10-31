@@ -84,7 +84,7 @@ func MakeDeployMsg(in *pb.XCodeSpec) *pb.Message {
 	timeStamp, _ := ptypes.TimestampProto(time.Now())
 	spec, _ := proto.Marshal(in)
 	return &pb.Message{
-		Action:    pb.Action_Response,
+		Action:    pb.Action_Request,
 		Type:      pb.Message_Contract_Deploy,
 		Payload:   spec,
 		Timestamp: timeStamp,

@@ -37,7 +37,7 @@ func newCommandDeploy(out io.Writer) (*cobra.Command, *XChainOption) {
 		Long:  "Deploy the specified chaincode to the network.e",
 		Run: func(c *cobra.Command, args []string) {
 			if err := options.validate(); err != nil {
-				fmt.Printf("deploy xcode %s error: %v\n", err)
+				fmt.Printf("exec command, %v\n", err)
 				return
 			}
 			options.Run(c, args)
@@ -77,10 +77,6 @@ func (o *XChainOption) validate() error {
 }
 
 func (o *XChainOption) Run(c *cobra.Command, args []string) {
-	if err := o.validate(); err != nil {
-		log.Printf("command run err %v\n", err.Error())
-	}
-
 	getName := func() (name string) {
 
 		if o.name != "" {
@@ -103,8 +99,9 @@ func (o *XChainOption) Run(c *cobra.Command, args []string) {
 
 	getInput := func() (*pb.XCodeInput, error) {
 		in := &pb.XCodeInput{}
+
 		if err := json.Unmarshal([]byte(o.initJson), &in); err != nil {
-			return nil, fmt.Errorf("Chaincode argument error: %s", err)
+			return nil, err
 		}
 
 		return in, nil
@@ -112,7 +109,7 @@ func (o *XChainOption) Run(c *cobra.Command, args []string) {
 
 	input, err := getInput()
 	if err != nil {
-		fmt.Printf("deploy parse param init err %v\n", input)
+		fmt.Printf("deploy parse param init err: %v\n", err)
 	}
 
 	deploySpec := &pb.XCodeSpec{

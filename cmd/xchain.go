@@ -14,6 +14,7 @@ at the same time, xchain supply you with manager and devops command.
 To start an xchain node, run:
 
 	xchain start&
+	xchain deploy&
 
 `
 )
