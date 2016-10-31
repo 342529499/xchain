@@ -31,8 +31,10 @@ func NewCommandXChain() *cobra.Command {
 		},
 	}
 
+	deployXChain, _ := newCommandDeploy(out)
 	startXChain, _ := newCommandStart(out)
 	root.AddCommand(startXChain)
+	root.AddCommand(deployXChain)
 
 	return root
 }

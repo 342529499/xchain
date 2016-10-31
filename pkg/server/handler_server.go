@@ -78,6 +78,9 @@ func serverConnectionHandler(stream pb.Net_ConnectServer) error {
 		case pb.Message_Net_PING:
 			node.pingHandler(msg, rsp)
 
+		case pb.Message_Contract_Deploy:
+			deployHandler(msg, rsp)
+
 		default:
 			log.Printf("recv unsupport ping msg %s\b.", msg.String())
 		}

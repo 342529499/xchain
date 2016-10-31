@@ -74,3 +74,44 @@ func (n *Node) pingHandler(in *pb.Message, out chan *pb.Message) {
 		return
 	}
 }
+
+func deployHandler(in *pb.Message, out chan *pb.Message) {
+
+	switch in.Action {
+	case pb.Action_Request:
+
+		deploy, err := parseDeployMsg(in)
+		if err != nil {
+			out <- makeErrRspMsg(err)
+			return
+		}
+
+		if err = xcodeCtl.Deploy(deploy); err != nil {
+			out <- makeErrRspMsg(err)
+			return
+		}
+
+		out <- MakeOKRspMsg()
+		return
+
+	//case pb.Action_Response:
+	//
+	//	pbList, err := parsePingRspMsg(in)
+	//	if err != nil {
+	//		out <- makeErrRspMsg(err)
+	//		return
+	//	}
+	//	pbList = ListWithOutLocalEP(pbList)
+	//
+	//	n.epManager.findNewEndPointHandler(pbList, func(ep *pb.EndPoint) {
+	//		//todo 这里需不需要处理err？
+	//		err := n.ConnectEntryPoint(ep.Address + ":10690")
+	//		handlerLog.Printf("[ping] handle endpoint %s err: %v\n", ep, err)
+	//	})
+
+	default:
+		handlerLog.Printf("[deployHandler] unsupport message %v\n", in)
+		return
+	}
+
+}

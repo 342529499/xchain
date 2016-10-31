@@ -47,3 +47,28 @@ message Ping {
     repeated EndPoint endPoint = 1;
 }
 
+message XCodeID {
+    string path = 1;
+    string name = 2;
+}
+
+message XCodeInput {
+    repeated bytes args  = 1;
+}
+
+message XCodeSpec {
+    enum Type {
+        UNDEFINED = 0;
+        GOLANG = 1;
+        PYTHON = 2;
+        JAVA = 3;
+    }
+
+    Type type = 1;
+    XCodeID xcodeID = 2;
+    XCodeInput xcodeMsg = 3;
+    int32 timeout = 4;
+    bytes metadata = 5;
+    repeated string attributes = 6;
+}
+

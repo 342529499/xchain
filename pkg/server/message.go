@@ -68,3 +68,40 @@ func makeErrRspMsg(err error) *pb.Message {
 		Timestamp: timeStamp,
 	}
 }
+
+func MakeOKRspMsg() *pb.Message {
+	timeStamp, _ := ptypes.TimestampProto(time.Now())
+
+	return &pb.Message{
+		Action:    pb.Action_Response,
+		Type:      pb.Message_OK,
+		Payload:   []byte("ok"),
+		Timestamp: timeStamp,
+	}
+}
+
+func MakeDeployMsg(in *pb.XCodeSpec) *pb.Message {
+	timeStamp, _ := ptypes.TimestampProto(time.Now())
+	spec, _ := proto.Marshal(in)
+	return &pb.Message{
+		Action:    pb.Action_Response,
+		Type:      pb.Message_Contract_Deploy,
+		Payload:   spec,
+		Timestamp: timeStamp,
+	}
+
+}
+
+func parseDeployMsg(in *pb.Message) (*pb.XCodeSpec, error) {
+	deploy := &pb.XCodeSpec{}
+	if err := proto.Unmarshal(in.Payload, deploy); err != nil {
+		return nil, err
+	}
+
+	return deploy, nil
+}
+
+func IsMessageFunc(a *pb.Message, isFunc func(*pb.Message) bool) bool {
+	return isFunc(a)
+}
+

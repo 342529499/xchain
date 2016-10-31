@@ -14,7 +14,7 @@ message Message {
         Net_HANDSHAKE = 1;
         Net_PING = 2;
 
-        Contract_Create = 3;
+        Contract_Deploy = 3;
         Contract_Run = 4;
         Contract_Query = 5;
 
@@ -27,6 +27,7 @@ message Message {
         Identity_Share = 10;
 
         Error = 11;
+        OK = 12;
     }
 
     Action action = 1;
