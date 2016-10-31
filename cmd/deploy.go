@@ -6,7 +6,7 @@ import (
 	"github.com/1851616111/util/rand"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"github.com/1851616111/xchain/pkg/server"
-	"github.com/pkg/errors"
+	"errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
