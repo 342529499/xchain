@@ -21,7 +21,6 @@ import (
 	"strings"
 
 	"github.com/hyperledger/fabric/metadata"
-	"github.com/spf13/viper"
 )
 
 // Our docker images retrieve $ARCH via "uname -m", which is typically "x86_64" for, well, x86_64.
@@ -46,7 +45,7 @@ func parseDockerfileTemplate(template string) string {
 
 	return r.Replace(template)
 }
-
-func GetDockerfileFromConfig(path string) string {
-	return parseDockerfileTemplate(viper.GetString(path))
-}
+//
+//func GetDockerfileFromConfig(path string) string {
+//	return parseDockerfileTemplate(viper.GetString(path))
+//}

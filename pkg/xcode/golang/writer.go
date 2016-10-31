@@ -10,10 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/op/go-logging"
+	"log"
 )
 
-var vmLogger = logging.MustGetLogger("container")
+
+var vmLogger = log.New(os.Stdout, "golang/writer", log.LstdFlags)
 
 var includeFileTypes = map[string]bool{
 	".c":    true,
@@ -31,7 +32,7 @@ var javaExcludeFileTypes = map[string]bool{
 
 func WriteFolderToTarPackage(tw *tar.Writer, srcPath string, excludeDir string, includeFileTypeMap map[string]bool, excludeFileTypeMap map[string]bool) error {
 	rootDirectory := srcPath
-	vmLogger.Infof("rootDirectory = %s", rootDirectory)
+	vmLogger.Printf("rootDirectory = %s", rootDirectory)
 
 	//append "/" if necessary
 	if excludeDir != "" && strings.LastIndex(excludeDir, "/") < len(excludeDir)-1 {
@@ -86,7 +87,7 @@ func WriteFolderToTarPackage(tw *tar.Writer, srcPath string, excludeDir string, 
 	}
 
 	if err := filepath.Walk(rootDirectory, walkFn); err != nil {
-		vmLogger.Infof("Error walking rootDirectory: %s", err)
+		vmLogger.Printf("Error walking rootDirectory: %s", err)
 		return err
 	}
 	return nil
@@ -99,10 +100,10 @@ func WriteGopathSrc(tw *tar.Writer, excludeDir string) error {
 	gopath = filepath.SplitList(gopath)[0]
 
 	rootDirectory := filepath.Join(gopath, "src")
-	vmLogger.Infof("rootDirectory = %s", rootDirectory)
+	vmLogger.Printf("rootDirectory = %s", rootDirectory)
 
 	if err := WriteFolderToTarPackage(tw, rootDirectory, excludeDir, includeFileTypes, nil); err != nil {
-		vmLogger.Errorf("Error writing folder to tar package %s", err)
+		vmLogger.Printf("Error writing folder to tar package %s", err)
 		return err
 	}
 
@@ -117,11 +118,11 @@ func WriteGopathSrc(tw *tar.Writer, excludeDir string) error {
 //Package Java project to tar file from the source path
 func WriteJavaProjectToPackage(tw *tar.Writer, srcPath string) error {
 
-	vmLogger.Debugf("Packaging Java project from path %s", srcPath)
+	vmLogger.Printf("Packaging Java project from path %s", srcPath)
 
 	if err := WriteFolderToTarPackage(tw, srcPath, "", nil, javaExcludeFileTypes); err != nil {
 
-		vmLogger.Errorf("Error writing folder to tar package %s", err)
+		vmLogger.Printf("Error writing folder to tar package %s", err)
 		return err
 	}
 	// Write the tar file out
