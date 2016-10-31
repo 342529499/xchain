@@ -75,7 +75,6 @@ func MakeOKRspMsg() *pb.Message {
 	return &pb.Message{
 		Action:    pb.Action_Response,
 		Type:      pb.Message_OK,
-		Payload:   []byte("ok"),
 		Timestamp: timeStamp,
 	}
 }
@@ -101,7 +100,11 @@ func parseDeployMsg(in *pb.Message) (*pb.XCodeSpec, error) {
 	return deploy, nil
 }
 
-func IsMessageFunc(a *pb.Message, isFunc func(*pb.Message) bool) bool {
-	return isFunc(a)
+func IsOKMsg(in *pb.Message) bool {
+	if in == nil {
+		return false
+	}
+
+	return in.Type == pb.Message_OK
 }
 

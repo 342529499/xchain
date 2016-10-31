@@ -14,7 +14,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"reflect"
 )
 
 type XChainOption struct {
@@ -152,11 +151,9 @@ func (o *XChainOption) Run(c *cobra.Command, args []string) {
 		break
 	}
 
-	if server.IsMessageFunc(result, func(a *pb.Message) bool{
-		return reflect.DeepEqual(a, result)
-	}) {
-		fmt.Printf("deploy xcode %s fail, errMsg:%v\n", *result)
+	if server.IsOKMsg(result) {
+		fmt.Printf("deploy xcode %s ok.\n", deploySpec.XcodeID.Name)
 	} else {
-		fmt.Printf("deploy xcode %s ok.", deploySpec.XcodeID.Name)
+		fmt.Printf("deploy xcode %s fail, errMsg:%s\n", deploySpec.XcodeID.Name, string(result.Payload))
 	}
 }
