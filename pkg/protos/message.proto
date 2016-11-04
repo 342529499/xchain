@@ -18,16 +18,15 @@ message Message {
         Contract_Run = 4;
         Contract_Query = 5;
 
-        Code_State_Put = 6;
-        Code_State_Get = 7;
+        Code = 6;
 
-        Ledger_Block_Create = 8;
-        Ledger_Block_Sync = 9;
+        Ledger_Block_Create = 7;
+        Ledger_Block_Sync = 8;
 
-        Identity_Share = 10;
+        Identity_Share = 9;
 
-        Error = 11;
-        OK = 12;
+        Error = 10;
+        OK = 11;
     }
 
     Action action = 1;

@@ -2,7 +2,7 @@ package server
 
 import (
 	pb "github.com/1851616111/xchain/pkg/protos"
-	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
+	cm "github.com/1851616111/xchain/pkg/server/message_cons_mng"
 	"log"
 	"os"
 	"time"

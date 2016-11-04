@@ -38,7 +38,6 @@ import (
 
 var logger = log.New(os.Stdout, "golang/hash", log.LstdFlags)
 
-
 //logging.MustGetLogger("golang/hash")
 
 //core hash computation factored out for testing

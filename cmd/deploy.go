@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/1851616111/util/rand"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"github.com/1851616111/xchain/pkg/server"
-	"errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

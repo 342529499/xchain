@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package protos;
+import "message.proto";
+
+service CodeService {
+    rpc execute(stream Instruction) returns (stream Instruction){}
+}
+
+message Instruction {
+    enum Type {
+        UNDEFINED = 0;
+        START = 1;
+        KEEPALIVE = 2;
+        ERROR = 3;
+        INIT = 4;
+        INVOKE= 5;
+        QUERY = 6;
+        STATE = 7;
+    }
+
+    Action action = 1;
+    Type type = 2;
+    int64 identifier = 4;
+    bytes payload = 3;
+}
+
+message Instruction_Start {
+    string name = 1;
+    string address = 2;
+    string lang = 3;
+}
+
+message instructionUnit {
+    string transactionID = 1;
+    string function = 2;
+    repeated string args = 3;
+}
+
+message Instruction_Init {
+    instructionUnit init = 1;
+}
+
+message Instruction_Invoke {
+    instructionUnit invoke = 1;
+}
+
+message Instruction_Query {
+    instructionUnit query = 1;
+}
+
+message Instruction_State {
+    enum Type {
+        UNDEFINED = 0;
+        PUT = 1;
+        GET = 2;
+        DELETE = 3;
+    }
+    Type type = 1;
+    string key = 2;
+    bytes value = 3;
+}
+
+message XCodeSpec {
+    enum Type {
+        UNDEFINED = 0;
+        GOLANG = 1;
+        PYTHON = 2;
+        JAVA = 3;
+    }
+
+    Type type = 1;
+    XCodeID xcodeID = 2;
+    XCodeInput xcodeMsg = 3;
+    int32 timeout = 4;
+    bytes metadata = 5;
+    repeated string attributes = 6;
+}
+
+message XCodeStateSpec {
+    enum Type {
+        UNDEFINED = 0;
+        GET = 1;
+        PUT = 2;
+        DELETE = 3;
+    }
+
+    Type type = 1;
+    string key = 2;
+    bytes value = 3;
+}
+
+message XCodeID {
+    string path = 1;
+    string name = 2;
+}
+
+message XCodeInput {
+    repeated bytes args  = 1;
+}

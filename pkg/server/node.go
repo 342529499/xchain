@@ -2,7 +2,7 @@ package server
 
 import (
 	pb "github.com/1851616111/xchain/pkg/protos"
-	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
+	cm "github.com/1851616111/xchain/pkg/server/message_cons_mng"
 	"sync"
 	"time"
 )
@@ -33,6 +33,8 @@ func newNode(local pb.EndPoint) *Node {
 			pingMaxFailureTimes: map[string]uint{},
 
 			runningClientDoneCH: map[string]chan struct{}{},
+
+
 		}
 	})
 
@@ -67,6 +69,7 @@ type Node struct {
 	pingMaxFailureTimes map[string]uint
 
 	runningClientDoneCH map[string]chan struct{}
+
 }
 
 type EndPointManager struct {

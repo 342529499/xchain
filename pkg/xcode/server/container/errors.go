@@ -1,4 +1,4 @@
-package xcode
+package container
 
 import (
 	"errors"

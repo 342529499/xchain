@@ -45,6 +45,7 @@ func parseDockerfileTemplate(template string) string {
 
 	return r.Replace(template)
 }
+
 //
 //func GetDockerfileFromConfig(path string) string {
 //	return parseDockerfileTemplate(viper.GetString(path))

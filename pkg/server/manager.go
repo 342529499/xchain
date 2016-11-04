@@ -1,7 +1,7 @@
 package server
 
 import (
-	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
+	cm "github.com/1851616111/xchain/pkg/server/message_cons_mng"
 )
 
 const (

@@ -13,7 +13,6 @@ import (
 	"log"
 )
 
-
 var vmLogger = log.New(os.Stdout, "golang/writer", log.LstdFlags)
 
 var includeFileTypes = map[string]bool{

@@ -4,7 +4,7 @@ import (
 	"log"
 
 	pb "github.com/1851616111/xchain/pkg/protos"
-	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
+	cm "github.com/1851616111/xchain/pkg/server/message_cons_mng"
 	"google.golang.org/grpc"
 
 	"code.google.com/p/go.net/context"

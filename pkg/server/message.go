@@ -107,4 +107,3 @@ func IsOKMsg(in *pb.Message) bool {
 
 	return in.Type == pb.Message_OK
 }
-

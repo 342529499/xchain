@@ -3,7 +3,7 @@ package server
 import (
 	"errors"
 	pb "github.com/1851616111/xchain/pkg/protos"
-	cm "github.com/1851616111/xchain/pkg/server/connection_manager"
+	cm "github.com/1851616111/xchain/pkg/server/message_cons_mng"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"strings"

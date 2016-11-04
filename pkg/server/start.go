@@ -13,13 +13,13 @@ import (
 
 	"fmt"
 	"github.com/1851616111/xchain/pkg/util"
-	"github.com/1851616111/xchain/pkg/xcode"
+	xcodecontainer "github.com/1851616111/xchain/pkg/xcode/server/container"
 	"os"
 )
 
 var (
 	Is_Develop_Mod bool
-	xcodeCtl       *xcode.Controller
+	xcodeCtl       *xcodecontainer.Controller
 )
 
 func NewAndStartGrpcServer(option *ServerOptions) error {
@@ -54,7 +54,7 @@ func NewAndStartGrpcServer(option *ServerOptions) error {
 	nodeServer := newNodeServer(option.ID, option.Address, option.IsValidator)
 	pb.RegisterNetServer(server, nodeServer)
 
-	xcodeCtl = xcode.GetController()
+	xcodeCtl = xcodecontainer.GetController()
 
 	go xcodeCtl.Start()
 	go node.RunController()
