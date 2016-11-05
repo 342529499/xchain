@@ -3,6 +3,7 @@ package server
 import (
 	pb "github.com/1851616111/xchain/pkg/protos"
 	cm "github.com/1851616111/xchain/pkg/server/message_cons_mng"
+
 	"sync"
 	"time"
 )
@@ -20,7 +21,7 @@ func newNode(local pb.EndPoint) *Node {
 	singleton.Do(func() {
 		node = &Node{
 			localEndPoint:  local,
-			epManager:      newEndPointManager(),
+			EPManager:      newEndPointManager(),
 			netManager:     newNetManager(),
 			keyExistMarker: map[string]interface{}{},
 
@@ -33,8 +34,6 @@ func newNode(local pb.EndPoint) *Node {
 			pingMaxFailureTimes: map[string]uint{},
 
 			runningClientDoneCH: map[string]chan struct{}{},
-
-
 		}
 	})
 
@@ -51,7 +50,7 @@ type Node struct {
 
 	localEndPoint pb.EndPoint
 
-	epManager *EndPointManager
+	EPManager *EndPointManager
 
 	keyExistMarker map[string]interface{}
 
@@ -69,7 +68,6 @@ type Node struct {
 	pingMaxFailureTimes map[string]uint
 
 	runningClientDoneCH map[string]chan struct{}
-
 }
 
 type EndPointManager struct {
@@ -93,7 +91,7 @@ func (n *Node) Accept(ep pb.EndPoint, con cm.Connection) error {
 	if err := n.netManager.serverAdd(key, con); err != nil {
 		return err
 	}
-	n.epManager.addEndPoint(ep)
+	n.EPManager.addEndPoint(ep)
 
 	return nil
 }
@@ -108,7 +106,7 @@ func (n *Node) Connect(ep pb.EndPoint, con cm.Connection) error {
 	if err := n.netManager.clientAdd(key, con); err != nil {
 		return err
 	}
-	n.epManager.addEndPoint(ep)
+	n.EPManager.addEndPoint(ep)
 
 	return nil
 }
@@ -120,7 +118,7 @@ func (n *Node) CancelAccept(ep pb.EndPoint) {
 
 	key := ep.Id
 
-	n.epManager.delEndPoint(ep.Id)
+	n.EPManager.delEndPoint(ep.Id)
 	n.netManager.delete(key)
 	return
 }
@@ -130,7 +128,7 @@ func (n *Node) DisConnect(ep pb.EndPoint, con cm.Connection) {
 	n.Lock()
 	defer n.Unlock()
 
-	n.epManager.delEndPoint(ep.Id)
+	n.EPManager.delEndPoint(ep.Id)
 	n.netManager.delete(ep.Id)
 }
 
@@ -138,7 +136,7 @@ func (n *Node) Exist(address string) bool {
 	n.RLock()
 	defer n.RUnlock()
 
-	_, exist := n.epManager.AddressToID[address]
+	_, exist := n.EPManager.AddressToID[address]
 	return exist
 }
 
@@ -158,7 +156,7 @@ func (n *Node) RemoteClient(id string) {
 
 	if n.pingMaxFailureTimes[id] == 3 {
 		n.netManager.delete(id)
-		n.epManager.delEndPoint(id)
+		n.EPManager.delEndPoint(id)
 		n.runningClientDoneCH[id] <- done
 	}
 }

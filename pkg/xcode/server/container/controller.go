@@ -1,8 +1,8 @@
 package container
 
 import (
-	"fmt"
 	pb "github.com/1851616111/xchain/pkg/protos"
+	bm "github.com/1851616111/xchain/pkg/xcode/server/broker_manager"
 	"github.com/fsouza/go-dockerclient"
 	"log"
 	"os"
@@ -53,9 +53,16 @@ type Controller struct {
 	workerNum     int
 	deployTimeout time.Duration
 	jobCh         chan Job
+
+	brokerNotifier    bm.Notifier
+	brokerNameToPortM map[string]string
 }
 
-func (c *Controller) Start() {
+func (c *Controller) SetBrokerNotifier(nodeID, nodeAddress string) {
+	c.brokerNotifier = bm.GetBrokerManager(nodeID, nodeAddress)
+}
+
+func (c *Controller) Run() {
 
 	logger.Printf("xcode controller: %v\n", *c)
 	go func() {
@@ -107,8 +114,7 @@ func (c *Controller) Dispatch(work *Worker) error {
 	return nil
 }
 
-func (c *Controller) Deploy(spec *pb.XCodeSpec) error {
-
+func (c *Controller) Deploy(spec *pb.XCodeSpec) (err error) {
 	result := make(chan interface{}, 10)
 	work := &Worker{
 		act:      Job_Action_BuildImage,
@@ -117,23 +123,71 @@ func (c *Controller) Deploy(spec *pb.XCodeSpec) error {
 		metadata: spec,
 
 		opts: &docker.BuildImageOptions{
-			Name: fmt.Sprintf("xcode-%s-%s", spec.Type.String(), spec.XcodeID.Path),
+			Name: genContainerName(spec),
 		},
 		resultCh: result,
 	}
-	if err := c.Dispatch(work); err != nil {
+	if err = c.Dispatch(work); err != nil {
 		logger.Printf("dispatch deploy work(%v) err:%v\n", *work, err)
-		return err
+		return
 	}
 
 	for {
 		select {
 		case res, ok := <-result:
 			if !ok { // res == nil, close(result) success
-				return nil
+				return
 			}
-			if err, ok := res.(error); ok {
-				return err
+			if err, ok = res.(error); ok {
+				return
+			}
+		case <-time.Tick(c.deployTimeout):
+			return ErrJobDeployTimeout
+		}
+	}
+}
+
+func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
+	defer func() {
+		if err == nil {
+
+			//TODO:这里只使用10692. 以后需要根绝docker is 来变换10692
+			c.brokerNameToPortM[spec.XcodeID.Name] = "10692"
+			c.brokerNotifier.Notify(bm.Event{
+				BrokerName: spec.XcodeID.Name,
+				BrokerPort: "10692", //broker的监听地址
+				Kind:       bm.EVENT_BROKER_START,
+			})
+		}
+	}()
+
+	//TODO: 这个名字生成缺少deploy的参数部分
+	result := make(chan interface{}, 10)
+	work := &Worker{
+		act:      Job_Action_BuildImage,
+		id:       spec.XcodeID.Path,
+		lang:     spec.Type,
+		metadata: spec,
+
+		opts: &docker.BuildImageOptions{
+			Name: genContainerName(spec),
+		},
+		resultCh: result,
+	}
+
+	if err = c.Dispatch(work); err != nil {
+		logger.Printf("dispatch deploy work(%v) err:%v\n", *work, err)
+		return
+	}
+
+	for {
+		select {
+		case res, ok := <-result:
+			if !ok { // res == nil, close(result) success
+				return
+			}
+			if err, ok = res.(error); ok {
+				return
 			}
 		case <-time.Tick(c.deployTimeout):
 			return ErrJobDeployTimeout

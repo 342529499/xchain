@@ -55,8 +55,9 @@ func NewAndStartGrpcServer(option *ServerOptions) error {
 	pb.RegisterNetServer(server, nodeServer)
 
 	xcodeCtl = xcodecontainer.GetController()
+	xcodeCtl.SetBrokerNotifier(node.GetLocalEndPoint().Id, node.GetLocalEndPoint().Address)
 
-	go xcodeCtl.Start()
+	go xcodeCtl.Run()
 	go node.RunController()
 	go node.StartPrinter(defaultPrinterTimer)
 

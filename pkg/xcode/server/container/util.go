@@ -4,9 +4,11 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	pb "github.com/1851616111/xchain/pkg/protos"
-	"github.com/1851616111/xchain/pkg/xcode/golang"
+	"github.com/1851616111/xchain/pkg/xcode/server/golang"
 	"io"
 )
 
@@ -42,4 +44,19 @@ func ToXCodeArgs(args ...string) [][]byte {
 		bargs[i] = []byte(arg)
 	}
 	return bargs
+}
+
+func genContainerName(spec *pb.XCodeSpec) string {
+	var paramStr string = "no"
+	if len(spec.XcodeMsg.Args) > 0 {
+		m := md5.New()
+
+		for _, b := range spec.XcodeMsg.Args {
+			m.Write(b)
+		}
+		s := m.Sum(nil)
+		paramStr = hex.EncodeToString(s)
+	}
+
+	return fmt.Sprintf("XCODE-%s-%s-%s", spec.Type.String(), spec.XcodeID.Path, paramStr)
 }

@@ -67,7 +67,7 @@ func (n *Node) print(t printerType) {
 			}
 		}
 	case printer_EndPoint:
-		n.epManager.printEP()
+		n.EPManager.printEP()
 	case printer_All:
 		n.print(printer_NetManager_Server)
 		n.print(printer_NetManager_Client)

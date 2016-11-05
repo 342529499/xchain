@@ -12,7 +12,7 @@ func (e *example) Init(i broker.Instructions, function string, args []string) ([
 	fmt.Printf("-----> function:%s", function)
 	fmt.Printf("-----> args:%s", args)
 
-	b , err := i.GetState("123")
+	b, err := i.GetState("123")
 	if err != nil {
 		fmt.Println("get state -------->err", err)
 	}

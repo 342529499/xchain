@@ -52,7 +52,7 @@ func (n *Node) pingHandler(in *pb.Message, out chan *pb.Message) {
 	}
 	switch in.Action {
 	case pb.Action_Request:
-		out <- makePingRspMsg(n.epManager.list())
+		out <- makePingRspMsg(n.EPManager.list())
 		return
 	case pb.Action_Response:
 
@@ -63,7 +63,7 @@ func (n *Node) pingHandler(in *pb.Message, out chan *pb.Message) {
 		}
 		pbList = ListWithOutLocalEP(pbList)
 
-		n.epManager.findNewEndPointHandler(pbList, func(ep *pb.EndPoint) {
+		n.EPManager.findNewEndPointHandler(pbList, func(ep *pb.EndPoint) {
 			//todo 这里需不需要处理err？
 			err := n.ConnectEntryPoint(ep.Address + ":10690")
 			handlerLog.Printf("[ping] handle endpoint %s err: %v\n", ep, err)
