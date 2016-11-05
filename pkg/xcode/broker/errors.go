@@ -1,6 +1,6 @@
 package broker
 
-import "github.com/pkg/errors"
+import "errors"
 
 var (
 	ERRInstructionSourceUnauthorized = errors.New("instruction source unauthorized.")

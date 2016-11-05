@@ -1,0 +1,34 @@
+<component name="libraryTable">
+  <library name="GOPATH &lt;grpc&gt;">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../reveltest" />
+      <root url="file://$PROJECT_DIR$/../../stathat.com" />
+      <root url="file://$PROJECT_DIR$/../../gopkg.in" />
+      <root url="file://$PROJECT_DIR$/../../code.google.com" />
+      <root url="file://$PROJECT_DIR$/../../test" />
+      <root url="file://$PROJECT_DIR$/../../github.com" />
+      <root url="file://$PROJECT_DIR$/../../golang.org" />
+      <root url="file://$PROJECT_DIR$/.." />
+      <root url="file://$PROJECT_DIR$/../../code.dataos.io" />
+      <root url="file://$PROJECT_DIR$/../../gerrit.hyperledger.org" />
+      <root url="file://$PROJECT_DIR$/../../tms" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../reveltest" />
+      <root url="file://$PROJECT_DIR$/../../stathat.com" />
+      <root url="file://$PROJECT_DIR$/../../gopkg.in" />
+      <root url="file://$PROJECT_DIR$/../../code.google.com" />
+      <root url="file://$PROJECT_DIR$/../../test" />
+      <root url="file://$PROJECT_DIR$/../../github.com" />
+      <root url="file://$PROJECT_DIR$/../../golang.org" />
+      <root url="file://$PROJECT_DIR$/.." />
+      <root url="file://$PROJECT_DIR$/../../code.dataos.io" />
+      <root url="file://$PROJECT_DIR$/../../gerrit.hyperledger.org" />
+      <root url="file://$PROJECT_DIR$/../../tms" />
+    </SOURCES>
+    <excluded>
+      <root url="file://$PROJECT_DIR$" />
+    </excluded>
+  </library>
+</component>

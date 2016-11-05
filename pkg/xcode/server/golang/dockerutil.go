@@ -18,9 +18,7 @@ package golang
 
 import (
 	"runtime"
-	"strings"
 
-	"github.com/hyperledger/fabric/metadata"
 )
 
 // Our docker images retrieve $ARCH via "uname -m", which is typically "x86_64" for, well, x86_64.
@@ -38,13 +36,7 @@ func getArch() string {
 	}
 }
 
-func parseDockerfileTemplate(template string) string {
-	r := strings.NewReplacer(
-		"$(ARCH)", getArch(),
-		"$(PROJECT_VERSION)", metadata.Version)
 
-	return r.Replace(template)
-}
 
 //
 //func GetDockerfileFromConfig(path string) string {
