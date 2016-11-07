@@ -9,7 +9,7 @@ import (
 func TestController_Start(t *testing.T) {
 	ctl := GetController()
 	ctl.ping = time.Second * 5
-	ctl.Start()
+	ctl.Run()
 
 	//testController_Dispatch_Deploy_Localhost(ctl, t)
 	//testController_Dispatch_Deploy_Http(ctl, t)
@@ -21,7 +21,7 @@ func testController_Deploy(ctl *Controller, t *testing.T) {
 	spec := &pb.XCodeSpec{
 		Type: pb.XCodeSpec_GOLANG,
 		XcodeID: &pb.XCodeID{
-			Path: "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example01",
+			Path: "github.com/1851616111/xchain/example/example01",
 		},
 
 		XcodeMsg: &pb.XCodeInput{

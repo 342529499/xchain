@@ -55,7 +55,7 @@ func writeChaincodePackage(spec *pb.XCodeSpec, tw *tar.Writer) error {
 	}
 
 	//let the executable's name be chaincode ID's name
-	newRunLine := fmt.Sprintf("RUN go install %s && cp src/github.com/hyperledger/fabric/peer/core.yaml $GOPATH/bin && mv $GOPATH/bin/%s $GOPATH/bin/%s", urlLocation, chaincodeGoName, spec.XcodeID.Name)
+	newRunLine := fmt.Sprintf("RUN go install %s && mv $GOPATH/bin/%s $GOPATH/bin/%s", urlLocation, chaincodeGoName, spec.XcodeID.Name)
 	test := `from hyperledger/fabric-baseimage:x86_64-0.1.0
 	#from utxo:0.1.0
 	COPY src $GOPATH/src

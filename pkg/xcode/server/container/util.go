@@ -10,6 +10,7 @@ import (
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"github.com/1851616111/xchain/pkg/xcode/server/golang"
 	"io"
+	"github.com/fsouza/go-dockerclient"
 )
 
 func GetXCodePackageBytes(spec *pb.XCodeSpec) (io.Reader, error) {
@@ -59,4 +60,8 @@ func genContainerName(spec *pb.XCodeSpec) string {
 	}
 
 	return fmt.Sprintf("XCODE-%s-%s-%s", spec.Type.String(), spec.XcodeID.Path, paramStr)
+}
+
+func listImages() {
+	docker.ListImagesOptions{}
 }
