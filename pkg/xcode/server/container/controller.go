@@ -1,9 +1,9 @@
 package container
 
 import (
+	"github.com/1851616111/go-dockerclient"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	bm "github.com/1851616111/xchain/pkg/xcode/server/broker_manager"
-	"github.com/fsouza/go-dockerclient"
 	"log"
 	"os"
 	"sync"
@@ -26,7 +26,7 @@ func GetController() *Controller {
 				ctl = new(Controller)
 				ctl.ping = time.Second * 60
 				ctl.workerNum = 1
-				ctl.deployTimeout = time.Second * 600
+				ctl.timeout = time.Second * 600
 				ctl.jobCh = make(chan Job, 200)
 				ctl.maxRefreshTimes = 10
 
@@ -50,9 +50,9 @@ type Controller struct {
 	refreshTimes    int
 	maxWorkCh       int
 
-	workerNum     int
-	deployTimeout time.Duration
-	jobCh         chan Job
+	workerNum int
+	timeout   time.Duration
+	jobCh     chan Job
 
 	brokerNotifier    bm.Notifier
 	brokerNameToPortM map[string]string
@@ -94,6 +94,7 @@ func (c *Controller) Run() {
 
 			case w := <-c.jobCh:
 				go func() {
+
 					w.Report(w.Do())
 				}()
 			}
@@ -114,8 +115,59 @@ func (c *Controller) Dispatch(work *Worker) error {
 	return nil
 }
 
+func (c *Controller) DeployValidate(spec *pb.XCodeSpec) (err error) {
+	resultCh, errCh := make(chan interface{}, 5), make(chan error, 5)
+
+	id := genCodeID(spec)
+	opt := &docker.ListImagesOptions{}
+	addFilterLabel(opt, map[string]string{
+		"language": spec.Type.String(),
+		"code":     spec.XcodeID.Path,
+		"id":       id,
+	})
+
+	work := &Worker{
+		act:      Job_Action_ListImage,
+		id:       spec.XcodeID.Path,
+		lang:     spec.Type,
+		metadata: spec,
+
+		opts:     opt,
+		resultCh: resultCh,
+		errCh:    errCh,
+	}
+	if err = c.Dispatch(work); err != nil {
+		logger.Printf("dispatch deploy work(%v) err:%v\n", *work, err)
+		return
+	}
+
+	var ok bool
+	for {
+		select {
+		case err, ok = <-errCh:
+			if ok {
+				return
+			} else if res, ok2 := <-resultCh; ok2 {
+				if images, ok3 := res.([]docker.APIImages); ok3 {
+					if len(images) > 0 {
+						err = ErrDeployWorkDuplicated
+					}
+					return
+				}
+			}
+		case <-time.Tick(c.timeout):
+			err = ErrJobDeployTimeout
+			return
+		}
+	}
+
+}
+
 func (c *Controller) Deploy(spec *pb.XCodeSpec) (err error) {
-	result := make(chan interface{}, 10)
+
+	errCh := make(chan error, 5)
+
+	id := genCodeID(spec)
 	work := &Worker{
 		act:      Job_Action_BuildImage,
 		id:       spec.XcodeID.Path,
@@ -123,9 +175,14 @@ func (c *Controller) Deploy(spec *pb.XCodeSpec) (err error) {
 		metadata: spec,
 
 		opts: &docker.BuildImageOptions{
-			Name: genContainerName(spec),
+			Name: id,
+			Labels: map[string]string{
+				"language": spec.Type.String(),
+				"code":     spec.XcodeID.Path,
+				"id":       id,
+			},
 		},
-		resultCh: result,
+		errCh: errCh,
 	}
 	if err = c.Dispatch(work); err != nil {
 		logger.Printf("dispatch deploy work(%v) err:%v\n", *work, err)
@@ -134,15 +191,18 @@ func (c *Controller) Deploy(spec *pb.XCodeSpec) (err error) {
 
 	for {
 		select {
-		case res, ok := <-result:
-			if !ok { // res == nil, close(result) success
+		case e, ok := <-errCh:
+			if !ok {
+				err = nil
+				return
+			} else {
+				err = e
 				return
 			}
-			if err, ok = res.(error); ok {
-				return
-			}
-		case <-time.Tick(c.deployTimeout):
-			return ErrJobDeployTimeout
+
+		case <-time.Tick(c.timeout):
+			err = ErrJobDeployTimeout
+			return
 		}
 	}
 }
@@ -162,7 +222,7 @@ func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 	}()
 
 	//TODO: 这个名字生成缺少deploy的参数部分
-	result := make(chan interface{}, 10)
+	errCh := make(chan error, 10)
 	work := &Worker{
 		act:      Job_Action_BuildImage,
 		id:       spec.XcodeID.Path,
@@ -170,9 +230,9 @@ func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 		metadata: spec,
 
 		opts: &docker.BuildImageOptions{
-			Name: genContainerName(spec),
+			Name: genCodeID(spec),
 		},
-		resultCh: result,
+		errCh: errCh,
 	}
 
 	if err = c.Dispatch(work); err != nil {
@@ -182,15 +242,17 @@ func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 
 	for {
 		select {
-		case res, ok := <-result:
-			if !ok { // res == nil, close(result) success
+		case e, ok := <-errCh:
+			if !ok {
+				err = nil
+				return
+			} else {
+				err = e
 				return
 			}
-			if err, ok = res.(error); ok {
-				return
-			}
-		case <-time.Tick(c.deployTimeout):
-			return ErrJobDeployTimeout
+		case <-time.Tick(c.timeout):
+			err = ErrJobDeployTimeout
+			return
 		}
 	}
 }

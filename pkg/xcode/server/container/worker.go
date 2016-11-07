@@ -2,7 +2,7 @@ package container
 
 import (
 	"bytes"
-	"github.com/fsouza/go-dockerclient"
+	"github.com/1851616111/go-dockerclient"
 	"sync"
 
 	pb "github.com/1851616111/xchain/pkg/protos"
@@ -43,7 +43,23 @@ func (c *container) RefreshClient() error {
 	return nil
 }
 
+func (w *Worker) listImage() ([]docker.APIImages, error) {
+	workOpts, ok := w.opts.(*docker.ListImagesOptions)
+	if !ok {
+		return nil, InterfaceAssertError("*go-dockerclient.ListImagesOptions")
+	}
+
+	_, err := client.ListImages(*workOpts)
+	if err != nil {
+		logger.Printf("Error list images err: %s", err)
+		return nil, err
+	}
+
+	return client.ListImages(*workOpts)
+}
+
 func (w *Worker) buildImage() error {
+
 	var workSepc *pb.XCodeSpec
 	var workOpts *docker.BuildImageOptions
 	var ok bool

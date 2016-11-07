@@ -10,7 +10,8 @@ import (
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"github.com/1851616111/xchain/pkg/xcode/server/golang"
 	"io"
-	"github.com/fsouza/go-dockerclient"
+	//"github.com/1851616111/go-dockerclient"
+	"github.com/1851616111/go-dockerclient"
 )
 
 func GetXCodePackageBytes(spec *pb.XCodeSpec) (io.Reader, error) {
@@ -47,7 +48,7 @@ func ToXCodeArgs(args ...string) [][]byte {
 	return bargs
 }
 
-func genContainerName(spec *pb.XCodeSpec) string {
+func genCodeID(spec *pb.XCodeSpec) string {
 	var paramStr string = "no"
 	if len(spec.XcodeMsg.Args) > 0 {
 		m := md5.New()
@@ -62,6 +63,16 @@ func genContainerName(spec *pb.XCodeSpec) string {
 	return fmt.Sprintf("XCODE-%s-%s-%s", spec.Type.String(), spec.XcodeID.Path, paramStr)
 }
 
-func listImages() {
-	docker.ListImagesOptions{}
+func addFilterLabel(opt *docker.ListImagesOptions, label map[string]string) {
+	if opt != nil && len(label) > 0 {
+		labelFilterSlice := []string{}
+		for k, v := range label {
+			labelFilterSlice = append(labelFilterSlice, fmt.Sprintf("%s=%s", k, v))
+		}
+
+		if opt.Filters == nil {
+			opt.Filters = map[string][]string{}
+		}
+		opt.Filters["label"] = labelFilterSlice
+	}
 }

@@ -10,6 +10,7 @@ type action int
 
 var (
 	m map[int]string = map[int]string{
+		Job_Action_ListImage:       "list images",
 		Job_Action_BuildImage:      "build image",
 		Job_Action_CreateContainer: "create container",
 		Job_Action_RemoveContainer: "remove container",
@@ -18,15 +19,16 @@ var (
 )
 
 const (
-	Job_Action_BuildImage = iota + 1
+	Job_Action_ListImage = iota + 1
+	Job_Action_BuildImage
 	Job_Action_CreateContainer
 	Job_Action_RemoveContainer
 	Job_Action_RemoveImage
 )
 
 type Job interface {
-	Do() error
-	Report(result interface{})
+	Do() (interface{}, error)
+	Report(interface{}, error)
 
 	Action() string
 	Details() string
@@ -34,17 +36,21 @@ type Job interface {
 }
 
 type Worker struct {
+	preWork *Worker
+
 	act  action
 	id   string
 	lang pb.XCodeSpec_Type
 
 	metadata interface{}
 	opts     interface{}
+
 	resultCh chan interface{}
+	errCh    chan error
 }
 
 func (w *Worker) Validate() error {
-	if w.act < Job_Action_BuildImage || w.act > Job_Action_RemoveImage {
+	if w.act < Job_Action_ListImage || w.act > Job_Action_RemoveImage {
 		return ErrWorkerActionNotAllow
 	}
 
@@ -67,31 +73,50 @@ func (w *Worker) Validate() error {
 	return nil
 }
 
-func (w *Worker) Do() error {
+func (w *Worker) preDo() (interface{}, error) {
+	if w.preWork != nil {
+		return w.preWork.Do()
+	}
+
+	return nil, nil
+}
+
+func (w *Worker) Do() (interface{}, error) {
+	if res, err := w.preDo(); err != nil {
+		w.preWork.Report(res, err)
+		return nil, err
+	}
+
 	switch w.act {
+	case Job_Action_ListImage:
+		return w.listImage()
 	case Job_Action_BuildImage:
-		return w.buildImage()
+		return nil, w.buildImage()
 	case Job_Action_CreateContainer:
-		return w.createContainer()
+		return nil, w.createContainer()
 	case Job_Action_RemoveContainer:
-		return w.removeContainer()
+		return nil, w.removeContainer()
 	case Job_Action_RemoveImage:
-		return w.removeImage()
+		return nil, w.removeImage()
 	default:
-		return ErrUnknownJobType
+		return nil, ErrUnknownJobType
 	}
 }
 
-func (w *Worker) Report(result interface{}) {
-	if result == nil {
-		close(w.resultCh)
-
-		logger.Printf("%s job ok, details:%s\n", w.Action(), w.Details())
-		return
+func (w *Worker) Report(result interface{}, err error) {
+	if err == nil {
+		if w.resultCh != nil {
+			w.resultCh <- result
+		}
+		close(w.errCh)
+		logger.Printf("do job(%s) ok, details:%s\n", w.Action(), w.Details())
+	} else {
+		w.errCh <- err
+		if w.resultCh != nil {
+			close(w.resultCh)
+		}
+		logger.Printf("do job(%s) error:%v, details:%s\n", w.Action(), result, w.Details())
 	}
-
-	logger.Printf("%s job error:%v, details:%s\n", w.Action(), result, w.Details())
-	w.resultCh <- result
 }
 
 func (w *Worker) Action() string {

@@ -1,6 +1,7 @@
 package container
 
 import (
+	"fmt"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"testing"
 	"time"
@@ -13,6 +14,7 @@ func TestController_Start(t *testing.T) {
 
 	//testController_Dispatch_Deploy_Localhost(ctl, t)
 	//testController_Dispatch_Deploy_Http(ctl, t)
+	testController_DeployValidate(ctl, t)
 	testController_Deploy(ctl, t)
 	select {}
 }
@@ -28,10 +30,28 @@ func testController_Deploy(ctl *Controller, t *testing.T) {
 			Args: ToXCodeArgs("f"),
 		},
 	}
-
+	fmt.Println("------01")
 	err := ctl.Deploy(spec)
 	if err != nil {
-		t.Errorf("deploy err %v\n", err)
+		t.Fatalf("deploy err %v\n", err)
+	}
+	fmt.Println("------02")
+}
+
+func testController_DeployValidate(ctl *Controller, t *testing.T) {
+	spec := &pb.XCodeSpec{
+		Type: pb.XCodeSpec_GOLANG,
+		XcodeID: &pb.XCodeID{
+			Path: "github.com/1851616111/xchain/example/example01",
+		},
+
+		XcodeMsg: &pb.XCodeInput{
+			Args: ToXCodeArgs("f"),
+		},
+	}
+	err := ctl.DeployValidate(spec)
+	if err != nil && err != ErrDeployWorkDuplicated {
+		t.Fatalf("deploy validate err %v\n", err)
 	}
 }
 

@@ -84,7 +84,6 @@ func serverConnectionHandler(stream pb.Net_ConnectServer) error {
 		default:
 			log.Printf("recv unsupport ping msg %s\b.", msg.String())
 		}
-
 	}
 	return nil
 }
