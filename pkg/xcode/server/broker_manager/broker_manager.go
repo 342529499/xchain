@@ -13,9 +13,10 @@ var (
 )
 
 func GetBrokerManager(nodeID, nodeAddress string) *manager {
-	nodeID, nodeAddress = nodeID, nodeAddress
 	if brokerManager == nil {
 		managerOnce.Do(func() {
+			nodeID, nodeAddress = nodeID, nodeAddress
+
 			brokerManager = &manager{
 				notifier: make(chan Event, 50),
 				stopChM:  map[string]chan struct{}{},
