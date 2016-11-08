@@ -18,7 +18,6 @@ package golang
 
 import (
 	"runtime"
-
 )
 
 // Our docker images retrieve $ARCH via "uname -m", which is typically "x86_64" for, well, x86_64.
@@ -35,8 +34,6 @@ func getArch() string {
 		return runtime.GOARCH
 	}
 }
-
-
 
 //
 //func GetDockerfileFromConfig(path string) string {

@@ -30,6 +30,8 @@ func GetController() *Controller {
 				ctl.jobCh = make(chan Job, 200)
 				ctl.maxRefreshTimes = 10
 
+				ctl.brokerNameToPortM = map[string]string{}
+
 			})
 	}
 
@@ -213,24 +215,28 @@ func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 
 			//TODO:这里只使用10692. 以后需要根绝docker is 来变换10692
 			c.brokerNameToPortM[spec.XcodeID.Name] = "10692"
-			c.brokerNotifier.Notify(bm.Event{
-				BrokerName: spec.XcodeID.Name,
-				BrokerPort: "10692", //broker的监听地址
-				Kind:       bm.EVENT_BROKER_START,
-			})
+			if c.brokerNotifier != nil {
+				c.brokerNotifier.Notify(bm.Event{
+					BrokerName: spec.XcodeID.Name,
+					BrokerPort: "10692", //broker的监听地址
+					Kind:       bm.EVENT_BROKER_START,
+				})
+			}
 		}
 	}()
 
 	//TODO: 这个名字生成缺少deploy的参数部分
 	errCh := make(chan error, 10)
 	work := &Worker{
-		act:      Job_Action_BuildImage,
+		act:      Job_Action_CreateContainer,
 		id:       spec.XcodeID.Path,
 		lang:     spec.Type,
 		metadata: spec,
 
-		opts: &docker.BuildImageOptions{
-			Name: genCodeID(spec),
+		opts: &docker.CreateContainerOptions{
+			Name:       genDockerID(genCodeID(spec)),
+			Config:     &docker.Config{Image: genCodeID(spec)},
+			HostConfig: getDockerHostConfig(),
 		},
 		errCh: errCh,
 	}

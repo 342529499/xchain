@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/1851616111/util/rand"
 	pb "github.com/1851616111/xchain/pkg/protos"
 	"github.com/1851616111/xchain/pkg/server"
 	"github.com/spf13/cobra"
@@ -82,15 +81,12 @@ func (o *XChainOption) Run(c *cobra.Command, args []string) {
 			name = o.name
 		} else {
 			//没有指定xcode的名字
-			if os.IsPathSeparator(uint8(rune(o.lang[len(o.lang)-1]))) {
-				o.lang = o.lang[:len(o.lang)-1]
+			if os.IsPathSeparator(uint8(rune(o.path[len(o.path)-1]))) {
+				o.path = o.path[:len(o.path)-1]
 			}
-
-			tmp := strings.TrimLeftFunc(o.lang, func(c rune) bool {
+			name = strings.TrimLeftFunc(o.path, func(c rune) bool {
 				return os.IsPathSeparator(uint8(c))
 			})
-
-			name = fmt.Sprintf("%s-%s", tmp, rand.String(4))
 		}
 
 		return

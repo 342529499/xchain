@@ -96,6 +96,20 @@ func (w *Worker) createContainer() error {
 		return InterfaceAssertError("*go-dockerclient.CreateContainerOptions")
 	}
 
+	if workOpts.Config.ExposedPorts == nil {
+		workOpts.Config.ExposedPorts = map[docker.Port]struct{}{"10692/tcp": struct{}{}}
+	}
+	if workOpts.HostConfig.PortBindings == nil {
+		workOpts.HostConfig.PortBindings = map[docker.Port][]docker.PortBinding{
+			"10692/tcp": []docker.PortBinding{
+				docker.PortBinding{
+					HostIP:   "0.0.0.0",
+					HostPort: "10692/cp",
+				},
+			},
+		}
+	}
+
 	_, err := client.CreateContainer(*workOpts)
 	if err != nil {
 		logger.Printf("Error create container: %s", err)
@@ -104,8 +118,7 @@ func (w *Worker) createContainer() error {
 
 	logger.Printf("Created container: %s", workOpts.Config.Image)
 
-	client.StartContainer(workOpts.Name, nil)
-	return nil
+	return client.StartContainer(workOpts.Name, workOpts.HostConfig)
 }
 
 func (w *Worker) removeContainer() error {

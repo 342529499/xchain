@@ -459,7 +459,7 @@ type BuildImageOptions struct {
 	ContextDir          string             `qs:"-"`
 	Ulimits             []ULimit           `qs:"-"`
 	BuildArgs           []BuildArg         `qs:"-"`
-	Labels 		    map[string]string  `qs:"-"`
+	Labels              map[string]string  `qs:"-"`
 	InactivityTimeout   time.Duration      `qs:"-"`
 	Context             context.Context
 }

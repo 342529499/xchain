@@ -80,13 +80,23 @@ func deployHandler(in *pb.Message, out chan *pb.Message) {
 	switch in.Action {
 	case pb.Action_Request:
 
-		deploy, err := parseDeployMsg(in)
+		metadata, err := parseDeployMsg(in)
 		if err != nil {
 			out <- makeErrRspMsg(err)
 			return
 		}
 
-		if err = xcodeCtl.Deploy(deploy); err != nil {
+		if err = xcodeCtl.DeployValidate(metadata); err != nil {
+			out <- makeErrRspMsg(err)
+			return
+		}
+
+		if err = xcodeCtl.Deploy(metadata); err != nil {
+			out <- makeErrRspMsg(err)
+			return
+		}
+
+		if err = xcodeCtl.Start(metadata); err != nil {
 			out <- makeErrRspMsg(err)
 			return
 		}

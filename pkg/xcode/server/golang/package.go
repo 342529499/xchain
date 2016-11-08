@@ -55,19 +55,20 @@ func writeChaincodePackage(spec *pb.XCodeSpec, tw *tar.Writer) error {
 	}
 
 	//let the executable's name be chaincode ID's name
-	newRunLine := fmt.Sprintf("RUN go install %s && mv $GOPATH/bin/%s $GOPATH/bin/%s", urlLocation, chaincodeGoName, spec.XcodeID.Name)
-	test := `from hyperledger/fabric-baseimage:x86_64-0.1.0
+	//newRunLine := fmt.Sprintf("RUN go install %s && mv $GOPATH/bin/%s $GOPATH/bin/%s", urlLocation, chaincodeGoName, spec.XcodeID.Name)
+	dockerFile := fmt.Sprintf(`from hyperledger/fabric-baseimage:x86_64-0.1.0
 	#from utxo:0.1.0
 	COPY src $GOPATH/src
-	WORKDIR $GOPATH`
+	WORKDIR $GOPATH/src/%s
+	RUN go build
+	ENTRYPOINT ["./%s"]`, urlLocation, chaincodeGoName)
 
-	dockerFileContents := fmt.Sprintf("%s\n%s", test, newRunLine)
-	dockerFileSize := int64(len([]byte(dockerFileContents)))
+	dockerFileSize := int64(len([]byte(dockerFile)))
 
 	//Make headers identical by using zero time
 	var zeroTime time.Time
 	tw.WriteHeader(&tar.Header{Name: "Dockerfile", Size: dockerFileSize, ModTime: zeroTime, AccessTime: zeroTime, ChangeTime: zeroTime})
-	tw.Write([]byte(dockerFileContents))
+	tw.Write([]byte(dockerFile))
 	err := WriteGopathSrc(tw, urlLocation)
 	if err != nil {
 		return fmt.Errorf("Error writing Chaincode package contents: %s", err)

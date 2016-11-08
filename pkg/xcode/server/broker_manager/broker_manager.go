@@ -28,7 +28,7 @@ func GetBrokerManager(nodeID, nodeAddress string) *manager {
 
 type manager struct {
 	sync.RWMutex
-	started       bool
+	started     bool
 	notifier    chan Event
 	stopChM     map[string]chan struct{}
 	conM        map[string]im.Connection

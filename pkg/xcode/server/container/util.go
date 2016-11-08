@@ -12,6 +12,7 @@ import (
 	"io"
 	//"github.com/1851616111/go-dockerclient"
 	"github.com/1851616111/go-dockerclient"
+	"strings"
 )
 
 func GetXCodePackageBytes(spec *pb.XCodeSpec) (io.Reader, error) {
@@ -63,6 +64,12 @@ func genCodeID(spec *pb.XCodeSpec) string {
 	return fmt.Sprintf("XCODE-%s-%s-%s", spec.Type.String(), spec.XcodeID.Path, paramStr)
 }
 
+func genDockerID(CodeID string) string {
+	s := strings.Replace(CodeID, ":", "_", -1)
+	return strings.Replace(s, "/", "_", -1)
+
+}
+
 func addFilterLabel(opt *docker.ListImagesOptions, label map[string]string) {
 	if opt != nil && len(label) > 0 {
 		labelFilterSlice := []string{}
@@ -74,5 +81,11 @@ func addFilterLabel(opt *docker.ListImagesOptions, label map[string]string) {
 			opt.Filters = map[string][]string{}
 		}
 		opt.Filters["label"] = labelFilterSlice
+	}
+}
+
+func getDockerHostConfig() *docker.HostConfig {
+	return &docker.HostConfig{
+		Memory: 2147483648,
 	}
 }
