@@ -20,6 +20,7 @@ func GetBrokerManager(nodeID, nodeAddress string) *manager {
 				notifier: make(chan Event, 50),
 				stopChM:  map[string]chan struct{}{},
 				conM:     map[string]im.Connection{},
+				nameToPortM: map[string]string{},
 			}
 		})
 	}
@@ -47,7 +48,7 @@ func (m *manager) start() {
 		for {
 			select {
 			case e := <-m.notifier:
-				logger.Println("new event %v\n", e)
+				logger.Printf("new event %v\n", e)
 				m.HandleEvent(e)
 			}
 		}

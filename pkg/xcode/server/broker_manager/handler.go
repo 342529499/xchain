@@ -85,7 +85,7 @@ func (m *manager) handleBroker(broker string) {
 
 func (m *manager) stopBrokerHandler(broker string) {
 	m.Lock()
-	defer m.RUnlock()
+	defer m.Unlock()
 
 	c, exist := m.stopChM[broker]
 	if !exist {

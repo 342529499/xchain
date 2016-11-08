@@ -11,18 +11,15 @@ import (
 )
 
 func connectBroker(port string) (pb.CodeService_ExecuteClient, error) {
-	conn, err := grpc.Dial("0.0.0.0"+port, grpc.WithInsecure())
+	conn, err := grpc.Dial("0.0.0.0:"+port, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
 	cli := pb.NewCodeServiceClient(conn)
-
 	c, err := cli.Execute(context.Background())
 	if err != nil {
 		return nil, err
 	}
-
 	startInst := broker.NewStartInstruction(nodeID, nodeAddress, pb.XCodeSpec_GOLANG.String())
 	if err := c.Send(startInst); err != nil {
 		return nil, err
@@ -38,6 +35,7 @@ func connectBroker(port string) (pb.CodeService_ExecuteClient, error) {
 		}
 
 		if rsp.Identifier == startInst.Identifier && broker.IsOKInstruction(rsp) {
+			log.Printf("connect to broker(%s) success", "0.0.0.0:"+port)
 			return c, nil
 		}
 	}
