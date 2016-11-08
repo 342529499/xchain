@@ -99,7 +99,6 @@ func WriteGopathSrc(tw *tar.Writer, excludeDir string) error {
 	gopath = filepath.SplitList(gopath)[0]
 
 	rootDirectory := filepath.Join(gopath, "src")
-	vmLogger.Printf("rootDirectory = %s", rootDirectory)
 
 	if err := WriteFolderToTarPackage(tw, rootDirectory, excludeDir, includeFileTypes, nil); err != nil {
 		vmLogger.Printf("Error writing folder to tar package %s", err)

@@ -84,7 +84,6 @@ func convertLabelToFilter(targetFilter *map[string][]string, label map[string]st
 		labelFilterSlice = append(labelFilterSlice, fmt.Sprintf("%s=%s", k, v))
 	}
 
-
 	(*targetFilter)["label"] = labelFilterSlice
 }
 

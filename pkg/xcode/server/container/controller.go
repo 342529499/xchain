@@ -254,7 +254,6 @@ func (c *Controller) PreStart(spec *pb.XCodeSpec) (err error) {
 		}
 	}
 
-
 }
 
 func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
@@ -285,8 +284,8 @@ func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 		metadata: spec,
 
 		opts: &docker.CreateContainerOptions{
-			Name:       id,
-			Config:     &docker.Config{
+			Name: id,
+			Config: &docker.Config{
 				Image: genCodeID(spec),
 				Labels: map[string]string{
 					"language": spec.Type.String(),

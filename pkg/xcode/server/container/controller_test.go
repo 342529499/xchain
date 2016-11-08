@@ -11,15 +11,13 @@ func TestController_Start(t *testing.T) {
 	ctl.ping = time.Second * 5
 	ctl.Run()
 
-	//testController_Dispatch_Deploy_Localhost(ctl, t)
-	//testController_Dispatch_Deploy_Http(ctl, t)
-	testController_DeployValidate(ctl, t)
-	testController_Deploy(ctl, t)
-	testController_Start(ctl, t)
+	testController_PrepareDeploy(ctl, t)
+	testController_PreStart(ctl, t)
+	//testController_Start(ctl, t)
 	select {}
 }
 
-func testController_DeployValidate(ctl *Controller, t *testing.T) {
+func testController_PrepareDeploy(ctl *Controller, t *testing.T) {
 	spec := &pb.XCodeSpec{
 		Type: pb.XCodeSpec_GOLANG,
 		XcodeID: &pb.XCodeID{
@@ -33,6 +31,8 @@ func testController_DeployValidate(ctl *Controller, t *testing.T) {
 	err := ctl.PreDeploy(spec)
 	if err != nil && err != ErrDeployImageExists {
 		t.Fatalf("deploy validate err %v\n", err)
+	} else if err == nil  {
+		testController_Deploy(ctl, t)
 	}
 }
 
@@ -50,6 +50,25 @@ func testController_Deploy(ctl *Controller, t *testing.T) {
 	err := ctl.Deploy(spec)
 	if err != nil {
 		t.Fatalf("deploy err %v\n", err)
+	}
+}
+
+func testController_PreStart(ctl *Controller, t *testing.T) {
+	spec := &pb.XCodeSpec{
+		Type: pb.XCodeSpec_GOLANG,
+		XcodeID: &pb.XCodeID{
+			Path: "github.com/1851616111/xchain/example/example01",
+		},
+
+		XcodeMsg: &pb.XCodeInput{
+			Args: ToXCodeArgs("f"),
+		},
+	}
+	err := ctl.PreStart(spec)
+	if err != nil && err != ErrDeployContainerExists {
+		t.Fatalf("parepare start err %v\n", err)
+	} else if err == nil {
+		testController_Start(ctl,t)
 	}
 }
 

@@ -96,14 +96,10 @@ func (m *manager) handleBroker(broker string) {
 					}
 
 					go m.handleState(broker, state, response)
-
-
 				}
 			}
-
 		}
 	}()
-
 }
 
 func (m *manager) stopBrokerHandler(broker string) {
