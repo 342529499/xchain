@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/peer"
 	"log"
 	"os"
+	"github.com/1851616111/xchain/pkg/xcode/server/container"
 )
 
 var (
@@ -87,13 +88,18 @@ func deployHandler(in *pb.Message, out chan *pb.Message) {
 		}
 
 		if err = xcodeCtl.DeployValidate(metadata); err != nil {
-			out <- makeErrRspMsg(err)
-			return
-		}
+			if err == container.ErrDeployWorkDuplicated{
+				//Start Container
+			} else  {
+				out <- makeErrRspMsg(err)
+				return
+			}
 
-		if err = xcodeCtl.Deploy(metadata); err != nil {
-			out <- makeErrRspMsg(err)
-			return
+		} else {
+			if err = xcodeCtl.Deploy(metadata); err != nil {
+				out <- makeErrRspMsg(err)
+				return
+			}
 		}
 
 		if err = xcodeCtl.Start(metadata); err != nil {
