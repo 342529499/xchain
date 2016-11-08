@@ -90,6 +90,15 @@ func (w *Worker) buildImage() error {
 	return nil
 }
 
+func (w *Worker) listContainers() ([]docker.APIContainers, error) {
+	workOpts, ok := w.opts.(*docker.ListContainersOptions)
+	if !ok {
+		return nil, InterfaceAssertError("*go-dockerclient.ListContainersOptions")
+	}
+
+	return client.ListContainers(*workOpts)
+}
+
 func (w *Worker) createContainer() error {
 	workOpts, ok := w.opts.(*docker.CreateContainerOptions)
 	if !ok {

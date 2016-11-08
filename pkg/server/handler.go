@@ -87,8 +87,8 @@ func deployHandler(in *pb.Message, out chan *pb.Message) {
 			return
 		}
 
-		if err = xcodeCtl.DeployValidate(metadata); err != nil {
-			if err == container.ErrDeployWorkDuplicated{
+		if err = xcodeCtl.PreDeploy(metadata); err != nil {
+			if err == container.ErrDeployImageExists {
 				//Start Container
 			} else  {
 				out <- makeErrRspMsg(err)
@@ -102,9 +102,15 @@ func deployHandler(in *pb.Message, out chan *pb.Message) {
 			}
 		}
 
-		if err = xcodeCtl.Start(metadata); err != nil {
-			out <- makeErrRspMsg(err)
-			return
+		if err = xcodeCtl.PreStart(metadata); err != nil {
+			if err == container.ErrDeployImageExists {
+				//Do nothing
+			}
+		} else {
+			if err = xcodeCtl.Start(metadata); err != nil {
+				out <- makeErrRspMsg(err)
+				return
+			}
 		}
 
 		out <- MakeOKRspMsg()

@@ -12,6 +12,7 @@ var (
 	m map[int]string = map[int]string{
 		Job_Action_ListImage:       "list images",
 		Job_Action_BuildImage:      "build image",
+		Job_Action_ListContainer:   "list containers",
 		Job_Action_CreateContainer: "create container",
 		Job_Action_RemoveContainer: "remove container",
 		Job_Action_RemoveImage:     "remove image",
@@ -21,6 +22,7 @@ var (
 const (
 	Job_Action_ListImage = iota + 1
 	Job_Action_BuildImage
+	Job_Action_ListContainer
 	Job_Action_CreateContainer
 	Job_Action_RemoveContainer
 	Job_Action_RemoveImage
@@ -92,6 +94,8 @@ func (w *Worker) Do() (interface{}, error) {
 		return w.listImage()
 	case Job_Action_BuildImage:
 		return nil, w.buildImage()
+	case Job_Action_ListContainer:
+		return w.listContainers()
 	case Job_Action_CreateContainer:
 		return nil, w.createContainer()
 	case Job_Action_RemoveContainer:

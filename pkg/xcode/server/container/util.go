@@ -70,18 +70,22 @@ func genDockerID(CodeID string) string {
 
 }
 
-func addFilterLabel(opt *docker.ListImagesOptions, label map[string]string) {
-	if opt != nil && len(label) > 0 {
-		labelFilterSlice := []string{}
-		for k, v := range label {
-			labelFilterSlice = append(labelFilterSlice, fmt.Sprintf("%s=%s", k, v))
-		}
-
-		if opt.Filters == nil {
-			opt.Filters = map[string][]string{}
-		}
-		opt.Filters["label"] = labelFilterSlice
+func convertLabelToFilter(targetFilter *map[string][]string, label map[string]string) {
+	if len(label) == 0 {
+		return
 	}
+
+	if *targetFilter == nil {
+		*targetFilter = map[string][]string{}
+	}
+
+	labelFilterSlice := []string{}
+	for k, v := range label {
+		labelFilterSlice = append(labelFilterSlice, fmt.Sprintf("%s=%s", k, v))
+	}
+
+
+	(*targetFilter)["label"] = labelFilterSlice
 }
 
 func getDockerHostConfig() *docker.HostConfig {

@@ -11,7 +11,8 @@ var (
 	}
 
 	ErrUnknownJobType           error = errors.New("job type unkown error")
-	ErrDeployWorkDuplicated     error = errors.New("deploy work duplicated")
+	ErrDeployImageExists error = errors.New("deploy image exists")
+	ErrDeployContainerExists error = errors.New("deploy container exists")
 	ErrWorkerNil                error = errors.New("job worker nil error")
 	ErrWorkerActionNotAllow     error = errors.New("job worker action not allowed")
 	ErrWorkerIDNotFound         error = errors.New("job worker id not found")

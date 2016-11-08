@@ -64,6 +64,7 @@ func (s *coderService) handle(codeStream pb.CodeService_ExecuteServer) error {
 		case pb.Instruction_INVOKE:
 		case pb.Instruction_QUERY:
 		case pb.Instruction_STATE:
+			fmt.Printf("xcode broker recv state operate %#v\n", *instruction)
 
 		default:
 			logger.Printf("recv unknown type msg: %#v\n", *instruction)

@@ -30,8 +30,8 @@ func testController_DeployValidate(ctl *Controller, t *testing.T) {
 			Args: ToXCodeArgs("f"),
 		},
 	}
-	err := ctl.DeployValidate(spec)
-	if err != nil && err != ErrDeployWorkDuplicated {
+	err := ctl.PreDeploy(spec)
+	if err != nil && err != ErrDeployImageExists {
 		t.Fatalf("deploy validate err %v\n", err)
 	}
 }

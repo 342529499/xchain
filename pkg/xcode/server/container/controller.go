@@ -117,12 +117,12 @@ func (c *Controller) Dispatch(work *Worker) error {
 	return nil
 }
 
-func (c *Controller) DeployValidate(spec *pb.XCodeSpec) (err error) {
+func (c *Controller) PreDeploy(spec *pb.XCodeSpec) (err error) {
 	resultCh, errCh := make(chan interface{}, 5), make(chan error, 5)
 
 	id := genCodeID(spec)
 	opt := &docker.ListImagesOptions{}
-	addFilterLabel(opt, map[string]string{
+	convertLabelToFilter(&opt.Filters, map[string]string{
 		"language": spec.Type.String(),
 		"code":     spec.XcodeID.Path,
 		"id":       id,
@@ -139,7 +139,7 @@ func (c *Controller) DeployValidate(spec *pb.XCodeSpec) (err error) {
 		errCh:    errCh,
 	}
 	if err = c.Dispatch(work); err != nil {
-		logger.Printf("dispatch deploy work(%v) err:%v\n", *work, err)
+		logger.Printf("dispatch prepare deploy work(%#v) err:%v\n", *work, err)
 		return
 	}
 
@@ -152,7 +152,7 @@ func (c *Controller) DeployValidate(spec *pb.XCodeSpec) (err error) {
 			} else if res, ok2 := <-resultCh; ok2 {
 				if images, ok3 := res.([]docker.APIImages); ok3 {
 					if len(images) > 0 {
-						err = ErrDeployWorkDuplicated
+						err = ErrDeployImageExists
 					}
 					return
 				}
@@ -209,6 +209,54 @@ func (c *Controller) Deploy(spec *pb.XCodeSpec) (err error) {
 	}
 }
 
+func (c *Controller) PreStart(spec *pb.XCodeSpec) (err error) {
+	resultCh, errCh := make(chan interface{}, 5), make(chan error, 5)
+
+	opt := &docker.ListContainersOptions{}
+	convertLabelToFilter(&opt.Filters, map[string]string{
+		"language": spec.Type.String(),
+		"code":     spec.XcodeID.Path,
+		"id":       genDockerID(genCodeID(spec)),
+	})
+
+	work := &Worker{
+		act:      Job_Action_ListContainer,
+		id:       spec.XcodeID.Path,
+		lang:     spec.Type,
+		metadata: spec,
+
+		opts:     opt,
+		resultCh: resultCh,
+		errCh:    errCh,
+	}
+	if err = c.Dispatch(work); err != nil {
+		logger.Printf("dispatch prepare start(%#v) err:%v\n", *work, err)
+		return
+	}
+
+	var ok bool
+	for {
+		select {
+		case err, ok = <-errCh:
+			if ok {
+				return
+			} else if res, ok2 := <-resultCh; ok2 {
+				if containers, ok3 := res.([]docker.APIContainers); ok3 {
+					if len(containers) > 0 {
+						err = ErrDeployContainerExists
+					}
+					return
+				}
+			}
+		case <-time.Tick(c.timeout):
+			err = ErrJobDeployTimeout
+			return
+		}
+	}
+
+
+}
+
 func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 	defer func() {
 		if err == nil {
@@ -226,7 +274,8 @@ func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 	}()
 
 	//TODO: 这个名字生成缺少deploy的参数部分
-	errCh := make(chan error, 10)
+	id := genDockerID(genCodeID(spec))
+	errCh := make(chan error, 5)
 	work := &Worker{
 		act:      Job_Action_CreateContainer,
 		id:       spec.XcodeID.Path,
@@ -234,15 +283,22 @@ func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 		metadata: spec,
 
 		opts: &docker.CreateContainerOptions{
-			Name:       genDockerID(genCodeID(spec)),
-			Config:     &docker.Config{Image: genCodeID(spec)},
+			Name:       id,
+			Config:     &docker.Config{
+				Image: genCodeID(spec),
+				Labels: map[string]string{
+					"language": spec.Type.String(),
+					"code":     spec.XcodeID.Path,
+					"id":       id,
+				},
+			},
 			HostConfig: getDockerHostConfig(),
 		},
 		errCh: errCh,
 	}
 
 	if err = c.Dispatch(work); err != nil {
-		logger.Printf("dispatch deploy work(%v) err:%v\n", *work, err)
+		logger.Printf("dispatch start container work(%#v) err:%v\n", *work, err)
 		return
 	}
 
