@@ -264,11 +264,13 @@ func (c *Controller) Start(spec *pb.XCodeSpec) (err error) {
 			//TODO:这里只使用10692. 以后需要根绝docker is 来变换10692
 			c.brokerNameToPortM[spec.XcodeID.Name] = "10692"
 			if c.brokerNotifier != nil {
-				c.brokerNotifier.Notify(bm.Event{
-					BrokerName: spec.XcodeID.Name,
-					BrokerPort: "10692", //broker的监听地址
-					Kind:       bm.EVENT_BROKER_START,
-				})
+				go func() {
+					c.brokerNotifier.Notify(bm.Event{
+						BrokerName: spec.XcodeID.Name,
+						BrokerPort: "10692", //broker的监听地址
+						Kind:       bm.EVENT_BROKER_START,
+					})
+				}()
 			}
 		}
 	}()

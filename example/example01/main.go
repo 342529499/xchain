@@ -8,6 +8,7 @@ type example struct {
 }
 
 func (e *example) Init(i broker.Instructions, function string, args []string) ([]byte, error) {
+	i.PutState("aaa", []byte("bbb"))
 	return nil, nil
 }
 

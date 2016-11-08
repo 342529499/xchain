@@ -6,9 +6,14 @@ import (
 	"os"
 
 	pb "github.com/1851616111/xchain/pkg/protos"
+	"fmt"
 )
 
 var logger = log.New(os.Stdout, "[broker manager]", log.LstdFlags)
+
+type ResponseWriter interface {
+	Send(*pb.Instruction) error
+}
 
 func (m *manager) HandleEvent(e Event) {
 	switch e.Kind {
@@ -17,7 +22,7 @@ func (m *manager) HandleEvent(e Event) {
 			return
 		}
 
-		m.startBrokerHandler(e.BrokerName, e.BrokerPort)
+		m.recordBroker(e.BrokerName, e.BrokerPort)
 		m.handleBroker(e.BrokerName)
 
 	case EVENT_BROKER_STOP:
@@ -25,7 +30,7 @@ func (m *manager) HandleEvent(e Event) {
 	}
 }
 
-func (m *manager) startBrokerHandler(name, port string) {
+func (m *manager) recordBroker(name, port string) {
 	m.Lock()
 	defer m.Unlock()
 
@@ -45,6 +50,7 @@ func (m *manager) startBrokerHandler(name, port string) {
 
 func (m *manager) handleBroker(broker string) {
 	go func() {
+
 		select {
 		case <-m.stopChM[broker]:
 			return
@@ -75,6 +81,9 @@ func (m *manager) handleBroker(broker string) {
 						logger.Printf("receive state message %v\n", state)
 					}
 
+					go m.handleState(broker, state, con)
+
+					fmt.Printf("------->[debug]------>state: %#v\n", state)
 				}
 			}
 
