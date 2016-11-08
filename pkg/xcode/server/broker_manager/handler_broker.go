@@ -6,14 +6,11 @@ import (
 	"os"
 
 	pb "github.com/1851616111/xchain/pkg/protos"
-	"fmt"
+	codebroker "github.com/1851616111/xchain/pkg/xcode/broker"
+	"github.com/golang/protobuf/proto"
 )
 
 var logger = log.New(os.Stdout, "[broker manager]", log.LstdFlags)
-
-type ResponseWriter interface {
-	Send(*pb.Instruction) error
-}
 
 func (m *manager) HandleEvent(e Event) {
 	switch e.Kind {
@@ -81,9 +78,26 @@ func (m *manager) handleBroker(broker string) {
 						logger.Printf("receive state message %v\n", state)
 					}
 
-					go m.handleState(broker, state, con)
+					response := func(state *pb.Instruction_State, err error) {
+						var retInstruction *pb.Instruction
+						if err != nil {
+							retInstruction = codebroker.ReturnErrorInstruction(i, err)
+						} else {
+							payload, _  := proto.Marshal(state)
+							retInstruction = &pb.Instruction{
+								Action:pb.Action_Response,
+								Type:i.Type,
+								Identifier: i.Identifier,
+								Payload: payload,
+							}
+						}
 
-					fmt.Printf("------->[debug]------>state: %#v\n", state)
+						con.Send(retInstruction)
+					}
+
+					go m.handleState(broker, state, response)
+
+
 				}
 			}
 
